@@ -1,4 +1,4 @@
-import { saveReferral, getReferrals, getReferrer } from '@/lib/storage';
+import { getReferrals, getReferrer, saveReferral } from '@/lib/storage';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {

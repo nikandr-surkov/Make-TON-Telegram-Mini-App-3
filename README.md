@@ -53,7 +53,11 @@ As this is a Telegram Mini App, you can't see the result directly in development
 - `app/page.tsx`: Main page component
 - `components/ReferralSystem.tsx`: Referral system component
 - `app/api/referrals/route.ts`: API route for handling referrals
-- `lib/storage.ts`: File-based storage utility functions
+- `lib/storage.ts`: In-memory storage utility functions
+
+## Note on Data Storage
+
+This demo uses an in-memory storage solution for simplicity and to avoid file system permission issues in serverless environments. In a production application, you should use a database or other persistent storage solution to maintain referral data across server restarts and multiple instances.
 
 ## YouTube Channel
 
