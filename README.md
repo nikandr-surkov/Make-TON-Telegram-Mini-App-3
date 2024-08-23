@@ -34,11 +34,6 @@ This Telegram Mini App showcases:
    npm install
    ```
 
-3. Create a `.env.local` file in the root directory and add your Telegram Bot Token:
-   ```
-   BOT_TOKEN=your_bot_token_here
-   ```
-
 ## Deployment and Usage
 
 As this is a Telegram Mini App, you can't see the result directly in development mode. Follow these steps to deploy and use the app:
