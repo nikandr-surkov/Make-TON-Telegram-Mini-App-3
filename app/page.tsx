@@ -47,35 +47,15 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-8 bg-cover bg-center" style={{ backgroundImage: 'url("/christmas_bg.jpeg")' }}>
+    <main className="min-h-screen flex items-center justify-center bg-cover bg-center relative overflow-hidden" style={{ backgroundImage: 'url("/christmas_bg.jpeg")' }}>
       <div className="absolute inset-0 bg-black bg-opacity-50" />
-      <Card className="relative z-10 w-full max-w-md p-8">
-        <h1 className="text-4xl font-bold mb-6 text-center text-red-700">Welcome Home</h1>
-        <nav className="mb-8">
-          <ul className="flex justify-center space-x-6">
-            <li><NavLink href="/">Home</NavLink></li>
-            <li><NavLink href="/friends">Friends</NavLink></li>
-            <li><NavLink href="/tasks">Tasks</NavLink></li>
-          </ul>
-        </nav>
-        <div className="text-center text-gray-700">
-          <p className="mb-4">Enjoy the holiday season!</p>
-          <Snowflake className="inline-block text-blue-500 animate-bounce" size={32} />
-        </div>
-      </Card>
-      {Array.from({ length: 50 }).map((_, index) => (
-        <div
-          key={index}
-          className="absolute text-white text-opacity-80 animate-fall"
-          style={{
-            left: `${Math.random() * 100}%`,
-            animationDuration: `${Math.random() * 3 + 2}s`,
-            animationDelay: `${Math.random() * 2}s`
-          }}
-        >
-          ❄
-        </div>
-      ))}
+      <div className="relative z-10 w-64 h-64 animate-spin-slow">
+        <img
+          src="/christmas_tree.jpeg"
+          alt="Rotating Christmas Tree"
+          className="w-full h-full object-cover rounded-full"
+        />
+      </div>
     </main>
   );
 }
