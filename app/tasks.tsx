@@ -25,18 +25,9 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <h1 className="text-4xl font-bold mb-8">Welcome Home</h1>
-      <ul>
-      <li>
-        <Link href="/">Home</Link>
-      </li>
-      <li>
-        <Link href="/friends">Friends</Link>
-      </li>
-      <li>
-        <Link href="/tasks">Tasks</Link>
-      </li>
-    </ul>
+        <div>Follow us on  Twitter</div>
+        <div>Follow us on Instagram</div>
+        <div>Follow us on Youtube</div>
     </main>
   )
 }
