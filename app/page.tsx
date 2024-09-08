@@ -1,12 +1,8 @@
 'use client'
-
 import ReferralSystem from '@/components/ReferralSystem'
 import { useEffect, useState } from 'react'
 
 export default function Home() {
-  const [initData, setInitData] = useState('')
-  const [userId, setUserId] = useState('')
-  const [startParam, setStartParam] = useState('')
 
   useEffect(() => {
     const initWebApp = async () => {
@@ -24,8 +20,7 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <h1 className="text-4xl font-bold mb-8">Telegram Referral Demo</h1>
-      <ReferralSystem initData={initData} userId={userId} startParam={startParam} />
+      <h1 className="text-4xl font-bold mb-8">Welcome Home</h1>
     </main>
   )
 }
