@@ -1,7 +1,7 @@
 'use client'
 import ReferralSystem from '@/components/ReferralSystem'
 import { useEffect, useState } from 'react'
-import Link from "next/link
+import Link from 'next/link'
 export default function Home() {
 
     const [initData, setInitData] = useState('')
