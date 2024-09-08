@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react'
 
 export default function Home() {
 
+    const [initData, setInitData] = useState('')
+    const [userId, setUserId] = useState('')
+    const [startParam, setStartParam] = useState('')
+  
   useEffect(() => {
     const initWebApp = async () => {
       if (typeof window !== 'undefined') {
