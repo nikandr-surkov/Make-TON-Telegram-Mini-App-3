@@ -1,21 +1,24 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ReactNode } from 'react';
 import Link from 'next/link';
 import { Snowflake } from 'lucide-react';
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card, CardContent } from '@/components/ui/card';
 import ReferralSystem from '@/components/ReferralSystem';
 
-const NavLink = ({ href, children }) => (
+interface NavLinkProps {
+  href: string;
+  children: ReactNode;
+}
+
+const NavLink: React.FC<NavLinkProps> = ({ href, children }) => (
   <Link href={href} className="text-white hover:text-red-300 transition-colors duration-200">
     {children}
   </Link>
 );
 
 export default function Home() {
-  const [initData, setInitData] = useState('');
-  const [userId, setUserId] = useState('');
-  const [startParam, setStartParam] = useState('');
+  const [initData, setInitData] = useState<string>('');
+  const [userId, setUserId] = useState<string>('');
+  const [startParam, setStartParam] = useState<string>('');
 
   useEffect(() => {
     const initWebApp = async () => {
