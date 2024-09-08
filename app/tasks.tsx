@@ -2,7 +2,7 @@
 import ReferralSystem from '@/components/ReferralSystem'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-export default function Home() {
+export default function Tasks() {
 
     const [initData, setInitData] = useState('')
     const [userId, setUserId] = useState('')
