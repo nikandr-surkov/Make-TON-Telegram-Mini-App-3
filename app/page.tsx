@@ -52,7 +52,7 @@ export default function Home() {
       <div className="relative z-10 w-64 h-64 perspective-500">
         <div className="w-full h-full animate-tree-sway transform-style-3d">
           <img
-            src="/christmas_tree.jpeg"
+            src="/christmas_tree.png"
             alt="Swaying Christmas Tree"
             className="w-full h-full object-cover rounded-lg"
           />
