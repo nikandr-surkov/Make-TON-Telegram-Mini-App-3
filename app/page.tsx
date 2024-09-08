@@ -16,9 +16,13 @@ const NavLink: React.FC<NavLinkProps> = ({ href, children }) => (
   </Link>
 );
 
-// Simple Card component
-const Card: React.FC<{ children: ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <div className={`bg-white bg-opacity-90 shadow-xl rounded-lg overflow-hidden ${className}`}>
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: ReactNode;
+  className?: string;
+}
+
+const Card: React.FC<CardProps> = ({ children, className = '', ...props }) => (
+  <div className={`bg-white bg-opacity-90 shadow-xl rounded-lg overflow-hidden ${className}`} {...props}>
     {children}
   </div>
 );
