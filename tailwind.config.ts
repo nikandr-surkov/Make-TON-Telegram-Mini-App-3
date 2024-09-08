@@ -13,8 +13,14 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      keyframes: {
+        sway: {
+          '0%, 100%': { transform: 'rotateY(0deg)' },
+          '50%': { transform: 'rotateY(10deg)' },
+        }
+      },
       animation: {
-        'spin-slow': 'spin 20s linear infinite',
+        'tree-sway': 'sway 3s ease-in-out infinite',
       },
     },
   },

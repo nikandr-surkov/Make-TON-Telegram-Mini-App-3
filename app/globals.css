@@ -31,3 +31,10 @@ body {
     text-wrap: balance;
   }
 }
+.perspective-500 {
+  perspective: 500px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
