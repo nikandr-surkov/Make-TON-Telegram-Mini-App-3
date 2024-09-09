@@ -1,14 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Snowflake, Gift } from 'lucide-react';
+import { Gift } from 'lucide-react';
 
 const SNOWFLAKE_COUNT = 50;
 const SNOWFLAKE_SIZES = ['text-lg', 'text-xl', 'text-2xl', 'text-3xl'];
 const TAP_THRESHOLD = 15;
 const COIN_AMOUNTS = [200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000];
 
-const Snowflake = ({ onClick }: { onClick: () => void }) => {
+const SnowflakeElement = ({ onClick }: { onClick: () => void }) => {
   const size = SNOWFLAKE_SIZES[Math.floor(Math.random() * SNOWFLAKE_SIZES.length)];
   return (
     <div
@@ -81,7 +81,7 @@ export default function Home() {
 
       {/* Snowflakes */}
       {[...Array(SNOWFLAKE_COUNT)].map((_, index) => (
-        <Snowflake key={index} onClick={handleSnowflakeTap} />
+        <SnowflakeElement key={index} onClick={handleSnowflakeTap} />
       ))}
 
       {/* Coin Box */}
