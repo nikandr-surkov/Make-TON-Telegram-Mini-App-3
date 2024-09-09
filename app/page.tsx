@@ -60,7 +60,14 @@ const CoinBox = ({ amount, onComplete }: { amount: number; onComplete: () => voi
 };
 
 export default function Home() {
-  const [coins, setCoins] = useState(0);
+  const [coins, setCoins] = useState(() => {
+    // Immediately retrieve coins from localStorage when component mounts
+    if (typeof window !== 'undefined') {
+      const storedCoins = localStorage.getItem('coins');
+      return storedCoins ? parseInt(storedCoins, 10) : 0;
+    }
+    return 0;
+  });
   const [snowflakesTapped, setSnowflakesTapped] = useState(0);
   const [taps, setTaps] = useState(0);
   const [showCoinBox, setShowCoinBox] = useState(false);
@@ -77,10 +84,6 @@ export default function Home() {
         WebApp.ready();
         setTelegramId(WebApp.initDataUnsafe.user?.id.toString() || '');
         setTelegramUsername(WebApp.initDataUnsafe.user?.username || '');
-        
-        // Load coins from localStorage
-        const storedCoins = localStorage.getItem('coins');
-        setCoins(storedCoins ? parseInt(storedCoins, 10) : 0);
       }
     };
     initWebApp();
