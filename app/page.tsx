@@ -70,6 +70,22 @@ export default function Home() {
   const [telegramId, setTelegramId] = useState('');
   const [telegramUsername, setTelegramUsername] = useState('');
 
+  const updateUserData = async (telegram_id: string, telegram_username: string, referrer_id: string | null, coin_balance: number) => {
+    try {
+      const response = await fetch('/api/user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ telegram_id, telegram_username, referrer_id, coin_balance }),
+      });
+      const data = await response.json();
+      if (!data.success) {
+        console.error('Failed to update user data:', data.error);
+      }
+    } catch (error) {
+      console.error('Error updating user data:', error);
+    }
+  };
+
   useEffect(() => {
     const initWebApp = async () => {
       if (typeof window !== 'undefined') {
@@ -108,7 +124,6 @@ export default function Home() {
       }
     };
     initWebApp();
-  }, []);
 
     // Initialize snowflakes
     const initialSnowflakes = Array.from({ length: SNOWFLAKE_COUNT }, (_, i) => ({ 
@@ -146,22 +161,6 @@ export default function Home() {
     };
     updateCoins();
   }, [coins, telegramId, telegramUsername]);
-
-  const updateUserData = async (telegram_id: string, telegram_username: string, referrer_id: string | null, coin_balance: number) => {
-    try {
-      const response = await fetch('/api/user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ telegram_id, telegram_username, referrer_id, coin_balance }),
-      });
-      const data = await response.json();
-      if (!data.success) {
-        console.error('Failed to update user data:', data.error);
-      }
-    } catch (error) {
-      console.error('Error updating user data:', error);
-    }
-  };
 
   const handleSnowflakeTap = useCallback((id: number) => {
     setSnowflakes(prev => {
@@ -211,7 +210,7 @@ export default function Home() {
     )), []);
 
   return (
-    <div className="h-screen bg-gradient-to-b from-green-900 to-green-600 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-green-900 to-green-600 relative">
       {/* Impressive Background */}
       <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/winter_landscape.jpg')" }} />
       <div className="absolute inset-0 bg-green-900 bg-opacity-50" /> {/* Overlay to maintain green tint */}
