@@ -26,11 +26,8 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
     // Check if the user is on a mobile device
     const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
 
-    // Check if the user is accessing through Telegram by looking for the 'Telegram.WebApp' object
-    const isTelegram = typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp;
-
-    // Set the access permission
-    if (isMobile && isTelegram) {
+    // Set access permission based on mobile detection
+    if (isMobile) {
       setIsAllowed(true);
     } else {
       setIsAllowed(false);
@@ -42,7 +39,7 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
       <div className="flex items-center justify-center min-h-screen bg-gray-100 text-center">
         <div className="p-4 bg-red-800 text-white rounded-lg">
           <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-          <p>You can only access this web app on a mobile device through Telegram.</p>
+          <p>This web app can only be accessed on a mobile device.</p>
         </div>
       </div>
     );
