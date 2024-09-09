@@ -28,7 +28,7 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="flex items-center space-x-4">
           <Bell className="text-yellow-400" />
           <Link href="/">
-            <span className="font-bold text-lg cursor-pointer">Merry Christmas!</span>
+            <span className="font-bold text-lg cursor-pointer">🎅</span>
           </Link>
         </div>
         <nav className="flex space-x-6">
