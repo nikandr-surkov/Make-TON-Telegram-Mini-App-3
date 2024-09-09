@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Gift } from 'lucide-react';
 
 const SNOWFLAKE_COUNT = 30;
-const SNOWFLAKE_SIZES = ['text-4xl', 'text-5xl', 'text-6xl', 'text-7xl'];
+const SNOWFLAKE_SIZES = ['text-3xl', 'text-4xl', 'text-5xl', 'text-6xl'];
 const TAP_THRESHOLD = 5 + Math.floor(Math.random() * 8); // Random between 5 and 12
 const COIN_AMOUNTS = [200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000];
 
@@ -12,12 +12,12 @@ const SnowflakeElement = ({ onClick, id, x, y }: { onClick: (id: number) => void
   const size = SNOWFLAKE_SIZES[Math.floor(Math.random() * SNOWFLAKE_SIZES.length)];
   return (
     <div
-      className={`absolute cursor-pointer ${size} text-white`}
+      className={`absolute cursor-pointer ${size} text-white animate-fall`}
       style={{
         left: `${x}%`,
         top: `${y}%`,
-        transform: 'translateY(0)',
-        transition: 'transform 15s linear',
+        animationDuration: `${Math.random() * 10 + 10}s`,
+        animationDelay: `${Math.random() * -10}s`,
       }}
       onClick={() => onClick(id)}
     >
@@ -68,7 +68,7 @@ export default function Home() {
   const [taps, setTaps] = useState(0);
   const [showCoinBox, setShowCoinBox] = useState(false);
   const [coinAmount, setCoinAmount] = useState(0);
-  const [snowflakes, setSnowflakes] = useState<Array<{ id: number; active: boolean; x: number; y: number }>>([]);
+  const [snowflakes, setSnowflakes] = useState<Array<{ id: number; x: number; y: number }>>([]);
   const [burstEffects, setBurstEffects] = useState<{id: number; x: number; y: number}[]>([]);
 
   useEffect(() => {
@@ -79,23 +79,11 @@ export default function Home() {
     }
 
     // Initialize snowflakes
-    const initialSnowflakes = Array.from({ length: SNOWFLAKE_COUNT }, (_, i) => ({ 
+    setSnowflakes(Array.from({ length: SNOWFLAKE_COUNT }, (_, i) => ({ 
       id: i, 
-      active: true, 
       x: Math.random() * 100, 
-      y: -20 - Math.random() * 100 // Start above the screen
-    }));
-    setSnowflakes(initialSnowflakes);
-
-    // Start snowflake animation
-    const snowflakeInterval = setInterval(() => {
-      setSnowflakes(prev => prev.map(sf => ({
-        ...sf,
-        y: sf.y + 0.1, // Adjust speed as needed
-      })).filter(sf => sf.y < 120)); // Remove snowflakes that are off-screen
-    }, 50);
-
-    return () => clearInterval(snowflakeInterval);
+      y: Math.random() * -100 // Start above the screen
+    })));
   }, []);
 
   useEffect(() => {
@@ -109,7 +97,11 @@ export default function Home() {
       if (tappedSnowflake) {
         setBurstEffects(bursts => [...bursts, { id: Date.now(), x: tappedSnowflake.x, y: tappedSnowflake.y }]);
       }
-      return prev.filter(sf => sf.id !== id);
+      return prev.filter(sf => sf.id !== id).concat({
+        id: Date.now(),
+        x: Math.random() * 100,
+        y: -10
+      });
     });
     setSnowflakesTapped(prev => prev + 1);
     setTaps((prevTaps) => {
@@ -139,7 +131,7 @@ export default function Home() {
   }, [burstEffects]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-green-900 to-green-600 relative overflow-hidden">
+    <div className="h-screen bg-gradient-to-b from-green-900 to-green-600 relative overflow-hidden">
       {/* Impressive Background */}
       <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/winter_landscape.jpg')" }} />
       <div className="absolute inset-0 bg-green-900 bg-opacity-50" /> {/* Overlay to maintain green tint */}
@@ -147,7 +139,7 @@ export default function Home() {
       {/* Decorative Elements */}
       <div className="absolute inset-0 pointer-events-none">
         {['🎄', '🎁', '🦌', '☃️', '🎅'].map((emoji, index) => (
-          <div key={index} className="absolute text-6xl opacity-20" style={{
+          <div key={index} className="absolute text-4xl opacity-20" style={{
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
             transform: `rotate(${Math.random() * 360}deg)`,
@@ -181,6 +173,6 @@ export default function Home() {
       {showCoinBox && (
         <CoinBox amount={coinAmount} onComplete={handleCoinBoxComplete} />
       )}
-    </main>
+    </div>
   );
 }
