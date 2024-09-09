@@ -177,7 +177,7 @@ export default function Task() {
             <p className="text-white mb-4">{selectedTask.description}</p>
             {isVerifying && (
               <p className="text-white mb-4">
-                Make sure you've completed the task. Santa's watching! ({countdown}s) 🎅
+                Make sure you&apos;ve completed the task. Santa&apos;s watching! ({countdown}s) 🎅
               </p>
             )}
             {error && (
