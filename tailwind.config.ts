@@ -11,7 +11,7 @@ const config: Config = {
       keyframes: {
         fall: {
           '0%': { transform: 'translateY(0) rotate(0deg)' },
-          '100%': { transform: 'translateY(100vh) rotate(360deg)' },
+          '100%': { transform: 'translateY(120vh) rotate(360deg)' },
         },
         bounce: {
           '0%, 100%': { transform: 'translateY(-25%)' },
@@ -28,7 +28,7 @@ const config: Config = {
         },
       },
       animation: {
-        'fall': 'fall linear infinite',
+        'fall': 'fall linear 15s infinite',
         'bounce': 'bounce 1s ease-in-out infinite',
         'coin-reveal': 'coin-reveal 2s ease-out forwards',
         'burst': 'burst 0.5s ease-out forwards',
