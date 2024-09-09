@@ -1,166 +1,202 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { CheckSquare, Gift, Trees, ExternalLink, Snowflake, Bell } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react';
+import { FaChevronRight, FaTimes, FaCheckCircle } from 'react-icons/fa';
 
 interface Task {
   id: number;
+  title: string;
   description: string;
-  completed: boolean;
   link: string;
   reward: number;
+  status: 'Pending' | 'InProgress' | 'Completed';
+  emoji: string;
 }
 
-export default function Tasks() {
-  const [initData, setInitData] = useState('')
-  const [userId, setUserId] = useState('')
-  const [startParam, setStartParam] = useState('')
-  const [verifyingTask, setVerifyingTask] = useState<number | null>(null)
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: 1, description: "Follow us on Twitter", completed: false, link: "https://twitter.com/your_account", reward: 100 },
-    { id: 2, description: "Follow us on Instagram", completed: false, link: "https://instagram.com/your_account", reward: 150 },
-    { id: 3, description: "Subscribe to our YouTube", completed: false, link: "https://youtube.com/your_channel", reward: 200 },
-  ])
+export default function Task() {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [countdown, setCountdown] = useState(15);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isBrowser, setIsBrowser] = useState(false);
+
+  const fetchTasks = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/tasks');
+      if (!response.ok) {
+        throw new Error('Failed to fetch tasks');
+      }
+      const data = await response.json();
+      const storedCompletedTasks = JSON.parse(localStorage.getItem('completedTasks') || '[]');
+      setTasks(
+        data.map((task: Task) => ({
+          ...task,
+          status: storedCompletedTasks.includes(task.id) ? 'Completed' : 'Pending',
+        }))
+      );
+    } catch (err) {
+      setError('Failed to load tasks. Please try again.');
+      console.error('Error fetching tasks:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const initWebApp = async () => {
-      if (typeof window !== 'undefined') {
-        const WebApp = (await import('@twa-dev/sdk')).default;
-        WebApp.ready();
-        setInitData(WebApp.initData);
-        setUserId(WebApp.initDataUnsafe.user?.id.toString() || '');
-        setStartParam(WebApp.initDataUnsafe.start_param || '');
-      }
-    };
-    initWebApp();
+    setIsBrowser(true);
+    fetchTasks();
+  }, [fetchTasks]);
 
-    // Load completed tasks from localStorage
-    const completedTasks = JSON.parse(localStorage.getItem('completedTasks') || '[]');
-    setTasks(prevTasks => prevTasks.map(task => ({
-      ...task,
-      completed: completedTasks.includes(task.id)
-    })));
-  }, [])
+  const handleTaskClick = (task: Task) => {
+    if (task.status === 'Completed') return;
+    setSelectedTask(task);
+  };
 
-  const verifyTask = (id: number) => {
-    setVerifyingTask(id);
-  }
+  const closeModal = () => {
+    setSelectedTask(null);
+    setIsVerifying(false);
+    setCountdown(15);
+    setError(null);
+  };
 
-  const completeTask = async (id: number) => {
-    const task = tasks.find(t => t.id === id);
-    if (!task) return;
+  const handleGoClick = (task: Task) => {
+    if (isBrowser) {
+      window.open(task.link, '_blank');
+      setTasks(tasks.map(t => 
+        t.id === task.id ? { ...t, status: 'InProgress' } : t
+      ));
+      setSelectedTask(prevTask => prevTask ? {...prevTask, status: 'InProgress'} : null);
+      startVerification(task.id);
+    }
+  };
 
-    // Update local state
-    setTasks(prevTasks => prevTasks.map(t => t.id === id ? { ...t, completed: true } : t));
-    
-    // Update localStorage
-    const completedTasks = JSON.parse(localStorage.getItem('completedTasks') || '[]');
-    localStorage.setItem('completedTasks', JSON.stringify([...completedTasks, id]));
-
-    // Update coins in localStorage
-    const currentCoins = parseInt(localStorage.getItem('coins') || '0', 10);
-    const newCoins = currentCoins + task.reward;
-    localStorage.setItem('coins', newCoins.toString());
-
-    // Update database
-    try {
-      const response = await fetch('/api/updateCoins', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, coins: newCoins, completedTask: id }),
+  const startVerification = (taskId: number) => {
+    setIsVerifying(true);
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setIsVerifying(false);
+          setTasks(tasks => tasks.map(t => 
+            t.id === taskId ? { ...t, status: 'Completed' } : t
+          ));
+          setSelectedTask(prevTask => prevTask ? {...prevTask, status: 'Completed'} : null);
+          saveCompletedTask(taskId);
+          return 0;
+        }
+        return prev - 1;
       });
-      if (!response.ok) {
-        throw new Error('Failed to update coins in database');
-      }
-    } catch (error) {
-      console.error('Error updating coins:', error);
+    }, 1000);
+  };
+
+  const saveCompletedTask = (taskId: number) => {
+    const storedCompletedTasks = JSON.parse(localStorage.getItem('completedTasks') || '[]');
+    localStorage.setItem('completedTasks', JSON.stringify([...storedCompletedTasks, taskId]));
+  };
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="w-full max-w-md bg-opacity-70 bg-gradient-to-br from-red-700 to-green-700 rounded-lg shadow-lg p-4 text-white">
+          <div className="text-2xl font-bold mb-4">Loading festive tasks... ❄️</div>
+          <div className="animate-pulse space-y-2">
+            {[...Array(5)].map((_, index) => (
+              <div key={index} className="h-16 bg-white bg-opacity-30 rounded-lg"></div>
+            ))}
+          </div>
+        </div>
+      );
     }
 
-    setVerifyingTask(null);
-  }
+    if (error) {
+      return (
+        <div className="w-full max-w-md bg-opacity-70 bg-gradient-to-br from-red-700 to-green-700 rounded-lg shadow-lg p-4 text-white">
+          <div className="text-2xl font-bold mb-4">Error 🎅</div>
+          <p>{error}</p>
+          <button 
+            className="mt-4 w-full py-2 bg-gradient-to-br from-yellow-400 to-yellow-600 text-white rounded font-bold"
+            onClick={fetchTasks}
+          >
+            Retry
+          </button>
+        </div>
+      );
+    }
 
-  return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-8 bg-gradient-to-b from-red-700 to-green-800 relative overflow-hidden">
-      {/* Christmas decorations */}
-      <div className="absolute inset-0 pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <Snowflake
-            key={i}
-            size={24}
-            className="text-white opacity-50 absolute animate-fall"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDuration: `${Math.random() * 10 + 5}s`,
-              animationDelay: `${Math.random() * 5}s`,
-            }}
-          />
-        ))}
-      </div>
-      <div className="bg-white bg-opacity-90 rounded-lg p-8 shadow-xl max-w-md w-full relative">
-        <h1 className="text-4xl font-bold mb-8 text-center text-red-700 flex items-center justify-center">
-          <CheckSquare className="mr-2" />
-          Christmas Tasks
-        </h1>
-        <p className="text-center mb-6 text-green-800">Complete these festive tasks to earn rewards!</p>
-        <ul className="space-y-4">
-          {tasks.map(task => (
-            <li key={task.id} className="relative">
-              <div className={`flex items-center justify-between p-4 ${task.completed ? 'bg-green-100' : 'bg-red-100'} rounded-lg transition-all duration-300 hover:shadow-md`}>
-                <div className="flex items-center">
-                  {task.completed ? (
-                    <Gift className="text-green-600 mr-3" size={24} />
-                  ) : (
-                    <Trees className="text-red-600 mr-3" size={24} />
-                  )}
-                  <span className={`${task.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
-                    {task.description}
-                  </span>
+    return (
+      <div className="w-full max-w-md bg-opacity-70 bg-gradient-to-br from-red-700 to-green-700 rounded-lg shadow-lg p-4 text-white">
+        <div className="text-2xl font-bold mb-4">Christmas Tasks 🎄</div>
+        <ul className="space-y-2">
+          {tasks.map((task) => (
+            <li 
+              key={task.id} 
+              className={`flex items-center justify-between p-3 rounded-lg cursor-pointer ${
+                task.status === 'Completed' ? 'bg-green-200' : 'bg-opacity-30 bg-white'
+              }`}
+              onClick={() => handleTaskClick(task)}
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+                  <span className="text-2xl">{task.emoji}</span>
                 </div>
-                {task.completed ? (
-                  <a href={task.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
-                    <ExternalLink size={20} />
-                  </a>
-                ) : (
-                  <button
-                    onClick={() => verifyTask(task.id)}
-                    className="bg-green-500 text-white px-3 py-1 rounded-full hover:bg-green-600 transition-colors duration-200"
-                  >
-                    Complete
-                  </button>
+                <span className="font-semibold">{task.title}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                {task.status !== 'Completed' && (
+                  <>
+                    <span className="text-yellow-400">🪙</span>
+                    <span>{task.reward.toLocaleString()}</span>
+                    <FaChevronRight className="text-gray-400" />
+                  </>
+                )}
+                {task.status === 'Completed' && (
+                  <FaCheckCircle className="text-green-500" />
                 )}
               </div>
-              {verifyingTask === task.id && (
-                <div className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center rounded-lg">
-                  <div className="text-center">
-                    <p className="mb-4">Are you sure you have completed this task?</p>
-                    <div className="flex justify-center space-x-4">
-                      <button
-                        onClick={() => completeTask(task.id)}
-                        className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-colors duration-200"
-                      >
-                        Yes, complete
-                      </button>
-                      <button
-                        onClick={() => setVerifyingTask(null)}
-                        className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition-colors duration-200"
-                      >
-                        No, cancel
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
             </li>
           ))}
         </ul>
-        <div className="mt-8 flex justify-center items-center space-x-4">
-          <Gift className="text-red-700" size={24} />
-          <Bell className="text-green-700" size={24} />
-          <Gift className="text-red-700" size={24} />
-        </div>
       </div>
+    );
+  };
+
+  return (
+    <main className="p-4 flex flex-col items-center justify-start min-h-screen bg-gradient-to-br from-red-700 to-green-700">
+      {renderContent()}
+      {selectedTask && selectedTask.status !== 'Completed' && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-gradient-to-br from-red-700 to-green-700 p-6 rounded-lg w-full max-w-sm">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-white">{selectedTask.title}</h2>
+              <FaTimes className="text-white cursor-pointer" onClick={closeModal} />
+            </div>
+            <p className="text-white mb-4">{selectedTask.description}</p>
+            {isVerifying && (
+              <p className="text-white mb-4">
+                Make sure you've completed the task. Santa's watching! ({countdown}s) 🎅
+              </p>
+            )}
+            {error && (
+              <p className="text-red-500 mb-4">{error}</p>
+            )}
+            <button 
+              className="w-full py-2 bg-gradient-to-br from-yellow-400 to-yellow-600 text-white rounded font-bold"
+              onClick={() => {
+                if (selectedTask.status === 'Pending') handleGoClick(selectedTask);
+              }}
+              disabled={isLoading || isVerifying}
+            >
+              {isLoading ? 'Processing...' :
+               isVerifying ? `Verifying (${countdown}s)` :
+               selectedTask.status === 'Pending' ? 'Go' : 'Claim'}
+            </button>
+          </div>
+        </div>
+      )}
     </main>
-  )
+  );
 }
