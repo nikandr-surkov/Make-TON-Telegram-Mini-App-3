@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Bell, Users, CheckSquare } from 'lucide-react';
@@ -18,6 +18,35 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
 const ClientLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const isMainPage = pathname === '/';
+  const [isAllowed, setIsAllowed] = useState(false);
+
+  useEffect(() => {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+    // Check if the user is on a mobile device
+    const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+
+    // Check if the user is accessing through Telegram
+    const isTelegram = userAgent.includes('Telegram');
+
+    // Set the access permission
+    if (isMobile && isTelegram) {
+      setIsAllowed(true);
+    } else {
+      setIsAllowed(false);
+    }
+  }, []);
+
+  if (!isAllowed) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 text-center">
+        <div className="p-4 bg-red-800 text-white rounded-lg">
+          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
+          <p>You can only access this web app on a mobile device through Telegram.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
