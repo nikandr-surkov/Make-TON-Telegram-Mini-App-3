@@ -111,15 +111,13 @@ export default function Home() {
           if (dbCoins > localCoins) {
             localStorage.setItem('coins', dbCoins.toString());
             setCoins(dbCoins);
+          } else {
+            // If local value is higher, update the database
+            await updateUserData(WebApp.initDataUnsafe.user?.id.toString() || '', WebApp.initDataUnsafe.user?.username || '', startParam, localCoins);
           }
   
-          // Check if it's time to sync with the database
-          const lastUpdate = localStorage.getItem('lastCoinUpdate');
-          const now = new Date().getTime();
-          if (!lastUpdate || now - parseInt(lastUpdate) > 3 * 24 * 60 * 60 * 1000) {
-            await updateUserData(WebApp.initDataUnsafe.user?.id.toString() || '', WebApp.initDataUnsafe.user?.username || '', startParam, Math.max(localCoins, dbCoins));
-            localStorage.setItem('lastCoinUpdate', now.toString());
-          }
+          // Update last sync time
+          localStorage.setItem('lastCoinUpdate', new Date().getTime().toString());
         }
       }
     };

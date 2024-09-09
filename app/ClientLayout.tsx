@@ -16,9 +16,12 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
 };
 
 const ClientLayout = ({ children }: { children: React.ReactNode }) => {
+  const pathname = usePathname();
+  const isMainPage = pathname === '/';
+
   return (
     <div className="flex flex-col min-h-screen">
-      <main className="flex-grow overflow-auto pb-20">
+      <main className={`flex-grow ${isMainPage ? '' : 'overflow-auto pb-20'}`}>
         {children}
       </main>
       <footer className="bg-red-900 text-white py-4 px-6 flex justify-between items-center fixed bottom-0 left-0 right-0">
