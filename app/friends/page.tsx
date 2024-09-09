@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import ReferralSystem from '@/components/ReferralSystem';
-import { ChristmasTree, Users, Gift } from 'lucide-react';
+import { Trees, Users, Gift } from 'lucide-react';
 
 export default function Friends() {
   const [initData, setInitData] = useState('');
@@ -59,7 +59,7 @@ export default function Friends() {
         <div className="mt-8 flex justify-center items-center space-x-4">
           <Gift className="text-red-700" size={24} />
           <p className="text-green-800 font-medium">Invite more friends to earn rewards!</p>
-          <ChristmasTree className="text-green-800" size={24} />
+          <Trees className="text-green-800" size={24} />
         </div>
       </div>
     </main>
