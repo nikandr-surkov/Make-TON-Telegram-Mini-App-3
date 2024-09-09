@@ -8,16 +8,13 @@ const SNOWFLAKE_SIZES = ['text-3xl', 'text-4xl', 'text-5xl', 'text-6xl'];
 const TAP_THRESHOLD = 5 + Math.floor(Math.random() * 8); // Random between 5 and 12
 const COIN_AMOUNTS = [200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000];
 
-const SnowflakeElement = ({ onClick, id, x, y }: { onClick: (id: number) => void; id: number; x: number; y: number }) => {
-  const size = SNOWFLAKE_SIZES[Math.floor(Math.random() * SNOWFLAKE_SIZES.length)];
+const SnowflakeElement = ({ onClick, id, x, y, size }: { onClick: (id: number) => void; id: number; x: number; y: number; size: string }) => {
   return (
     <div
       className={`absolute cursor-pointer ${size} text-white animate-fall`}
       style={{
         left: `${x}%`,
         top: `${y}%`,
-        animationDuration: `${Math.random() * 10 + 10}s`,
-        animationDelay: `${Math.random() * -10}s`,
       }}
       onClick={() => onClick(id)}
     >
@@ -68,7 +65,7 @@ export default function Home() {
   const [taps, setTaps] = useState(0);
   const [showCoinBox, setShowCoinBox] = useState(false);
   const [coinAmount, setCoinAmount] = useState(0);
-  const [snowflakes, setSnowflakes] = useState<Array<{ id: number; x: number; y: number }>>([]);
+  const [snowflakes, setSnowflakes] = useState<Array<{ id: number; x: number; y: number; size: string }>>([]);
   const [burstEffects, setBurstEffects] = useState<{id: number; x: number; y: number}[]>([]);
 
   useEffect(() => {
@@ -79,11 +76,25 @@ export default function Home() {
     }
 
     // Initialize snowflakes
-    setSnowflakes(Array.from({ length: SNOWFLAKE_COUNT }, (_, i) => ({ 
+    const initialSnowflakes = Array.from({ length: SNOWFLAKE_COUNT }, (_, i) => ({ 
       id: i, 
       x: Math.random() * 100, 
-      y: Math.random() * -100 // Start above the screen
-    })));
+      y: Math.random() * -100 - 20, // Start above the screen
+      size: SNOWFLAKE_SIZES[Math.floor(Math.random() * SNOWFLAKE_SIZES.length)]
+    }));
+    setSnowflakes(initialSnowflakes);
+
+    // Start snowflake animation
+    const animateSnowflakes = () => {
+      setSnowflakes(prev => prev.map(sf => ({
+        ...sf,
+        y: sf.y <= 100 ? sf.y + 0.1 : -20 // Reset to top when it goes off-screen
+      })));
+    };
+
+    const animationInterval = setInterval(animateSnowflakes, 50);
+
+    return () => clearInterval(animationInterval);
   }, []);
 
   useEffect(() => {
@@ -96,12 +107,9 @@ export default function Home() {
       const tappedSnowflake = prev.find(sf => sf.id === id);
       if (tappedSnowflake) {
         setBurstEffects(bursts => [...bursts, { id: Date.now(), x: tappedSnowflake.x, y: tappedSnowflake.y }]);
+        return prev.map(sf => sf.id === id ? { ...sf, y: Math.random() * -100 - 20 } : sf);
       }
-      return prev.filter(sf => sf.id !== id).concat({
-        id: Date.now(),
-        x: Math.random() * 100,
-        y: -10
-      });
+      return prev;
     });
     setSnowflakesTapped(prev => prev + 1);
     setTaps((prevTaps) => {
@@ -161,7 +169,7 @@ export default function Home() {
 
       {/* Snowflakes */}
       {snowflakes.map((sf) => (
-        <SnowflakeElement key={sf.id} id={sf.id} x={sf.x} y={sf.y} onClick={handleSnowflakeTap} />
+        <SnowflakeElement key={sf.id} id={sf.id} x={sf.x} y={sf.y} size={sf.size} onClick={handleSnowflakeTap} />
       ))}
 
       {/* Burst Effects */}
