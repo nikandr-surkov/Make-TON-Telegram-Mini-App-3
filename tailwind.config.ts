@@ -10,7 +10,7 @@ const config: Config = {
     extend: {
       keyframes: {
         fall: {
-          '0%': { transform: 'translateY(-100vh)' },
+          '0%': { transform: 'translateY(-20px)' },
           '100%': { transform: 'translateY(100vh)' },
         },
         bounce: {
@@ -19,13 +19,14 @@ const config: Config = {
         },
         'coin-reveal': {
           '0%': { transform: 'scale(0) rotate(-45deg)', opacity: '0' },
-          '100%': { transform: 'scale(1) rotate(0deg)', opacity: '1' },
+          '50%': { transform: 'scale(1.2) rotate(10deg)', opacity: '1' },
+          '100%': { transform: 'scale(1) rotate(0deg)', opacity: '0' },
         },
       },
       animation: {
         'fall': 'fall linear infinite',
         'bounce': 'bounce 1s ease-in-out infinite',
-        'coin-reveal': 'coin-reveal 0.5s ease-out forwards',
+        'coin-reveal': 'coin-reveal 2s ease-out forwards',
       },
     },
   },
