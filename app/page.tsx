@@ -53,14 +53,14 @@ export default function Home() {
         <div className="w-full h-full animate-tree-rotate transform-style-3d">
           <div className="absolute w-full h-full backface-hidden">
             <img
-              src="/christmas_tree_front.png"
+              src="/christmas_tree.png"
               alt="Christmas Tree Front"
               className="w-full h-full object-cover"
             />
           </div>
           <div className="absolute w-full h-full backface-hidden rotate-y-180">
             <img
-              src="/christmas_tree_back.png"
+              src="/christmas_tree.png"
               alt="Christmas Tree Back"
               className="w-full h-full object-cover"
             />
