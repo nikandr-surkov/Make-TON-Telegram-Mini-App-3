@@ -148,9 +148,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // Update coin balance in localStorage and database
-    localStorage.setItem('coins', coins.toString());
-    
+    // Update coin balance in database periodically
     const updateCoins = async () => {
       const lastUpdate = localStorage.getItem('lastCoinUpdate');
       const now = new Date().getTime();
@@ -161,6 +159,11 @@ export default function Home() {
     };
     updateCoins();
   }, [coins, telegramId, telegramUsername]);
+
+  // New useEffect to update localStorage whenever coins change
+  useEffect(() => {
+    localStorage.setItem('coins', coins.toString());
+  }, [coins]);
 
   const handleSnowflakeTap = useCallback((id: number) => {
     setSnowflakes(prev => {
