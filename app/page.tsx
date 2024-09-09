@@ -3,25 +3,41 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Gift } from 'lucide-react';
 
-const SNOWFLAKE_COUNT = 50;
-const SNOWFLAKE_SIZES = ['text-lg', 'text-xl', 'text-2xl', 'text-3xl'];
+const SNOWFLAKE_COUNT = 30;
+const SNOWFLAKE_SIZES = ['text-4xl', 'text-5xl', 'text-6xl', 'text-7xl'];
 const TAP_THRESHOLD = 5 + Math.floor(Math.random() * 8); // Random between 5 and 12
 const COIN_AMOUNTS = [200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000];
 
-const SnowflakeElement = ({ onClick, id }: { onClick: (id: number) => void; id: number }) => {
+const SnowflakeElement = ({ onClick, id, x, y }: { onClick: (id: number) => void; id: number; x: number; y: number }) => {
   const size = SNOWFLAKE_SIZES[Math.floor(Math.random() * SNOWFLAKE_SIZES.length)];
   return (
     <div
       className={`absolute cursor-pointer ${size} text-white animate-fall`}
       style={{
-        left: `${Math.random() * 100}%`,
-        top: '-20px',
-        animationDuration: `${Math.random() * 10 + 5}s`,
+        left: `${x}%`,
+        top: `${y}%`,
+        animationDuration: `${Math.random() * 5 + 10}s`,
         animationDelay: `${Math.random() * -5}s`,
       }}
       onClick={() => onClick(id)}
     >
       ❄️
+    </div>
+  );
+};
+
+const BurstEffect = ({ x, y }: { x: number; y: number }) => {
+  return (
+    <div className="absolute pointer-events-none" style={{ left: `${x}%`, top: `${y}%` }}>
+      {[...Array(8)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute w-2 h-2 bg-white rounded-full animate-burst"
+          style={{
+            transform: `rotate(${i * 45}deg) translateY(-20px)`,
+          }}
+        />
+      ))}
     </div>
   );
 };
@@ -52,10 +68,24 @@ export default function Home() {
   const [taps, setTaps] = useState(0);
   const [showCoinBox, setShowCoinBox] = useState(false);
   const [coinAmount, setCoinAmount] = useState(0);
-  const [snowflakes, setSnowflakes] = useState(Array.from({ length: SNOWFLAKE_COUNT }, (_, i) => ({ id: i, active: true })));
+  const [snowflakes, setSnowflakes] = useState(
+    Array.from({ length: SNOWFLAKE_COUNT }, (_, i) => ({ 
+      id: i, 
+      active: true, 
+      x: Math.random() * 100, 
+      y: Math.random() * 100 
+    }))
+  );
+  const [burstEffects, setBurstEffects] = useState<{id: number; x: number; y: number}[]>([]);
 
   const handleSnowflakeTap = useCallback((id: number) => {
-    setSnowflakes(prev => prev.map(sf => sf.id === id ? { ...sf, active: false } : sf));
+    setSnowflakes(prev => {
+      const tappedSnowflake = prev.find(sf => sf.id === id);
+      if (tappedSnowflake) {
+        setBurstEffects(bursts => [...bursts, { id: Date.now(), x: tappedSnowflake.x, y: tappedSnowflake.y }]);
+      }
+      return prev.map(sf => sf.id === id ? { ...sf, active: false } : sf);
+    });
     setSnowflakesTapped(prev => prev + 1);
     setTaps((prevTaps) => {
       const newTaps = prevTaps + 1;
@@ -80,7 +110,12 @@ export default function Home() {
       setSnowflakes(prev => {
         const newSnowflakes = prev.filter(sf => sf.active);
         while (newSnowflakes.length < SNOWFLAKE_COUNT) {
-          newSnowflakes.push({ id: Math.random(), active: true });
+          newSnowflakes.push({ 
+            id: Math.random(), 
+            active: true, 
+            x: Math.random() * 100, 
+            y: -10 // Start above the screen
+          });
         }
         return newSnowflakes;
       });
@@ -89,12 +124,24 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const burstTimeout = setTimeout(() => {
+      setBurstEffects([]);
+    }, 1000);
+
+    return () => clearTimeout(burstTimeout);
+  }, [burstEffects]);
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-green-900 to-green-600 relative overflow-hidden">
-      {/* Background Emojis */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
+      {/* Impressive Background */}
+      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/winter_landscape.jpg')" }} />
+      <div className="absolute inset-0 bg-green-900 bg-opacity-50" /> {/* Overlay to maintain green tint */}
+
+      {/* Decorative Elements */}
+      <div className="absolute inset-0 pointer-events-none">
         {['🎄', '🎁', '🦌', '☃️', '🎅'].map((emoji, index) => (
-          <div key={index} className="absolute text-4xl" style={{
+          <div key={index} className="absolute text-6xl opacity-20" style={{
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
             transform: `rotate(${Math.random() * 360}deg)`,
@@ -116,7 +163,12 @@ export default function Home() {
 
       {/* Snowflakes */}
       {snowflakes.filter(sf => sf.active).map((sf) => (
-        <SnowflakeElement key={sf.id} id={sf.id} onClick={handleSnowflakeTap} />
+        <SnowflakeElement key={sf.id} id={sf.id} x={sf.x} y={sf.y} onClick={handleSnowflakeTap} />
+      ))}
+
+      {/* Burst Effects */}
+      {burstEffects.map(burst => (
+        <BurstEffect key={burst.id} x={burst.x} y={burst.y} />
       ))}
 
       {/* Coin Box */}
