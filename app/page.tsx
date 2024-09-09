@@ -6,7 +6,7 @@ import { Gift } from 'lucide-react';
 const SNOWFLAKE_COUNT = 30;
 const SNOWFLAKE_SIZES = ['text-3xl', 'text-4xl', 'text-5xl', 'text-6xl'];
 const TAP_THRESHOLD = 5 + Math.floor(Math.random() * 8); // Random between 5 and 12
-const COIN_AMOUNTS = [200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000];
+const COIN_AMOUNTS = [50, 100, 300, 400, 500];
 
 const SnowflakeElement = ({ onClick, id, x, y, size }: { onClick: (id: number) => void; id: number; x: number; y: number; size: string }) => {
   return (

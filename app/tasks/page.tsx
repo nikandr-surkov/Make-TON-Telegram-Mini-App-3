@@ -52,8 +52,12 @@ export default function Task() {
   }, [fetchTasks]);
 
   const handleTaskClick = (task: Task) => {
-    if (task.status === 'Completed') return;
-    setSelectedTask(task);
+    if (task.status === 'Completed') {
+      // Open link directly if task is completed
+      window.open(task.link, '_blank');
+    } else {
+      setSelectedTask(task);
+    }
   };
 
   const closeModal = () => {
@@ -148,8 +152,8 @@ export default function Task() {
           {tasks.map((task) => (
             <li 
               key={task.id} 
-              className={`flex items-center justify-between p-3 rounded-lg cursor-pointer ${
-                task.status === 'Completed' ? 'bg-green-200' : 'bg-opacity-30 bg-white'
+              className={`flex items-center justify-between p-3 rounded-lg cursor-pointer bg-opacity-30 bg-white ${
+                task.status === 'Completed' ? 'opacity-75' : ''
               }`}
               onClick={() => handleTaskClick(task)}
             >
@@ -160,15 +164,12 @@ export default function Task() {
                 <span className="font-semibold">{task.title}</span>
               </div>
               <div className="flex items-center space-x-2">
-                {task.status !== 'Completed' && (
-                  <>
-                    <span className="text-yellow-400">🪙</span>
-                    <span>{task.reward.toLocaleString()}</span>
-                    <FaChevronRight className="text-gray-400" />
-                  </>
-                )}
-                {task.status === 'Completed' && (
+                <span className="text-yellow-400">🪙</span>
+                <span>{task.reward.toLocaleString()}</span>
+                {task.status === 'Completed' ? (
                   <FaCheckCircle className="text-green-500" />
+                ) : (
+                  <FaChevronRight className="text-gray-400" />
                 )}
               </div>
             </li>
@@ -191,7 +192,7 @@ export default function Task() {
             <p className="text-white mb-4">{selectedTask.description}</p>
             {isVerifying && (
               <p className="text-white mb-4">
-                Make sure you&apos;ve completed the task. Santa&apos;s watching! ({countdown}s) 🎅
+                Make sure you've completed the task. Santa's watching! ({countdown}s) 🎅
               </p>
             )}
             {error && (
