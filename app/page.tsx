@@ -12,12 +12,12 @@ const SnowflakeElement = ({ onClick, id, x, y }: { onClick: (id: number) => void
   const size = SNOWFLAKE_SIZES[Math.floor(Math.random() * SNOWFLAKE_SIZES.length)];
   return (
     <div
-      className={`absolute cursor-pointer ${size} text-white animate-fall`}
+      className={`absolute cursor-pointer ${size} text-white`}
       style={{
         left: `${x}%`,
         top: `${y}%`,
-        animationDuration: `${Math.random() * 5 + 10}s`,
-        animationDelay: `${Math.random() * -5}s`,
+        transform: 'translateY(0)',
+        transition: 'transform 15s linear',
       }}
       onClick={() => onClick(id)}
     >
@@ -68,15 +68,40 @@ export default function Home() {
   const [taps, setTaps] = useState(0);
   const [showCoinBox, setShowCoinBox] = useState(false);
   const [coinAmount, setCoinAmount] = useState(0);
-  const [snowflakes, setSnowflakes] = useState(
-    Array.from({ length: SNOWFLAKE_COUNT }, (_, i) => ({ 
+  const [snowflakes, setSnowflakes] = useState<Array<{ id: number; active: boolean; x: number; y: number }>>([]);
+  const [burstEffects, setBurstEffects] = useState<{id: number; x: number; y: number}[]>([]);
+
+  useEffect(() => {
+    // Initialize coins from localStorage
+    const storedCoins = localStorage.getItem('coins');
+    if (storedCoins) {
+      setCoins(parseInt(storedCoins, 10));
+    }
+
+    // Initialize snowflakes
+    const initialSnowflakes = Array.from({ length: SNOWFLAKE_COUNT }, (_, i) => ({ 
       id: i, 
       active: true, 
       x: Math.random() * 100, 
-      y: Math.random() * 100 
-    }))
-  );
-  const [burstEffects, setBurstEffects] = useState<{id: number; x: number; y: number}[]>([]);
+      y: -20 - Math.random() * 100 // Start above the screen
+    }));
+    setSnowflakes(initialSnowflakes);
+
+    // Start snowflake animation
+    const snowflakeInterval = setInterval(() => {
+      setSnowflakes(prev => prev.map(sf => ({
+        ...sf,
+        y: sf.y + 0.1, // Adjust speed as needed
+      })).filter(sf => sf.y < 120)); // Remove snowflakes that are off-screen
+    }, 50);
+
+    return () => clearInterval(snowflakeInterval);
+  }, []);
+
+  useEffect(() => {
+    // Update localStorage when coins change
+    localStorage.setItem('coins', coins.toString());
+  }, [coins]);
 
   const handleSnowflakeTap = useCallback((id: number) => {
     setSnowflakes(prev => {
@@ -84,7 +109,7 @@ export default function Home() {
       if (tappedSnowflake) {
         setBurstEffects(bursts => [...bursts, { id: Date.now(), x: tappedSnowflake.x, y: tappedSnowflake.y }]);
       }
-      return prev.map(sf => sf.id === id ? { ...sf, active: false } : sf);
+      return prev.filter(sf => sf.id !== id);
     });
     setSnowflakesTapped(prev => prev + 1);
     setTaps((prevTaps) => {
@@ -103,25 +128,6 @@ export default function Home() {
   const handleCoinBoxComplete = useCallback(() => {
     setShowCoinBox(false);
     setCoinAmount(0);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSnowflakes(prev => {
-        const newSnowflakes = prev.filter(sf => sf.active);
-        while (newSnowflakes.length < SNOWFLAKE_COUNT) {
-          newSnowflakes.push({ 
-            id: Math.random(), 
-            active: true, 
-            x: Math.random() * 100, 
-            y: -10 // Start above the screen
-          });
-        }
-        return newSnowflakes;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -152,7 +158,7 @@ export default function Home() {
       </div>
 
       {/* Coin Counter */}
-      <div className="absolute top-4 left-4 bg-yellow-400 rounded-full px-4 py-2 text-2xl font-bold text-white shadow-lg">
+      <div className="absolute top-4 left-4 bg-red-900 rounded-full px-4 py-2 text-2xl font-bold text-white shadow-lg">
         🪙 {coins}
       </div>
 
@@ -162,7 +168,7 @@ export default function Home() {
       </div>
 
       {/* Snowflakes */}
-      {snowflakes.filter(sf => sf.active).map((sf) => (
+      {snowflakes.map((sf) => (
         <SnowflakeElement key={sf.id} id={sf.id} x={sf.x} y={sf.y} onClick={handleSnowflakeTap} />
       ))}
 
