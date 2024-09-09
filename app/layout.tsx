@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NavLink } from ""react-router-dom";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
@@ -20,7 +21,7 @@ export default function RootLayout({
        {/* Footer */}
       <footer className="bg-red-900 text-white py-4 px-6 flex justify-between items-center">
         <div className="flex items-center space-x-4">
-          <Bell className="text-yellow-400" />
+          <div className="text-yellow-400">🔔</div>
           <span className="font-bold text-lg">Merry Christmas!</span>
         </div>
         <nav className="flex space-x-4">
