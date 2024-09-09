@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { CheckSquare, Gift, Tree, ExternalLink } from 'lucide-react'
+import { CheckSquare, Gift, ChristmasTree, ExternalLink } from 'lucide-react'
 
 interface Task {
   id: number;
@@ -68,7 +68,7 @@ export default function Tasks() {
         </ul>
         <div className="mt-8 flex justify-center">
           <Gift className="text-red-700 mr-2" size={24} />
-          <Tree className="text-green-800 ml-2" size={24} />
+          <ChristmasTree className="text-green-800 ml-2" size={24} />
         </div>
       </div>
     </main>
