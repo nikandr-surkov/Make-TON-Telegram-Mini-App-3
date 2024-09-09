@@ -49,13 +49,22 @@ export default function Home() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-cover bg-center relative overflow-hidden" style={{ backgroundImage: 'url("/christmas_bg.jpeg")' }}>
       <div className="absolute inset-0 bg-black bg-opacity-50" />
-      <div className="relative z-10 w-64 h-64 perspective-500">
-        <div className="w-full h-full animate-tree-sway transform-style-3d">
-          <img
-            src="/christmas_tree.png"
-            alt="Swaying Christmas Tree"
-            className="w-full h-full object-cover rounded-lg"
-          />
+      <div className="relative z-10 w-64 h-64 perspective-1000">
+        <div className="w-full h-full animate-tree-rotate transform-style-3d">
+          <div className="absolute w-full h-full backface-hidden">
+            <img
+              src="/christmas_tree_front.png"
+              alt="Christmas Tree Front"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="absolute w-full h-full backface-hidden rotate-y-180">
+            <img
+              src="/christmas_tree_back.png"
+              alt="Christmas Tree Back"
+              className="w-full h-full object-cover"
+            />
+          </div>
         </div>
       </div>
     </main>

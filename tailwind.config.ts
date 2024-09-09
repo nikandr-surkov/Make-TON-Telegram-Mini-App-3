@@ -14,13 +14,13 @@ const config: Config = {
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
       keyframes: {
-        sway: {
-          '0%, 100%': { transform: 'rotateY(0deg)' },
-          '50%': { transform: 'rotateY(10deg)' },
+        rotate: {
+          '0%': { transform: 'rotateY(0deg)' },
+          '100%': { transform: 'rotateY(360deg)' },
         }
       },
       animation: {
-        'tree-sway': 'sway 3s ease-in-out infinite',
+        'tree-rotate': 'rotate 10s linear infinite',
       },
     },
   },
