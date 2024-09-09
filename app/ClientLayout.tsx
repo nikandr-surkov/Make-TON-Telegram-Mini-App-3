@@ -18,6 +18,9 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
 const ClientLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const isMainPage = pathname === '/';
+  
+  // Track loading state to avoid showing access denied prematurely
+  const [isLoading, setIsLoading] = useState(true);
   const [isAllowed, setIsAllowed] = useState(false);
 
   useEffect(() => {
@@ -27,13 +30,22 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
     const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
 
     // Set access permission based on mobile detection
-    if (isMobile) {
-      setIsAllowed(true);
-    } else {
-      setIsAllowed(false);
-    }
+    setIsAllowed(isMobile);
+    
+    // Once the check is done, stop loading
+    setIsLoading(false);
   }, []);
 
+  // While checking, show a loading screen to avoid flashing Access Denied
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="text-2xl font-bold">Loading...</div>
+      </div>
+    );
+  }
+
+  // If the user is not allowed (not on mobile), show Access Denied
   if (!isAllowed) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100 text-center">
@@ -45,6 +57,7 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
+  // If the user is on mobile, render the app
   return (
     <div className="flex flex-col min-h-screen">
       <main className={`flex-grow ${isMainPage ? '' : 'overflow-auto pb-20'}`}>
