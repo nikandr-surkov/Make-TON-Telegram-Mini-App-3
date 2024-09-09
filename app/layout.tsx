@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { NavLink } from ""react-router-dom";
+import { NavLink } from "react-router-dom";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
