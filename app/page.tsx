@@ -61,6 +61,7 @@ export default function Home() {
               animationDelay: `${Math.random() * 5}s`,
             }}
           />
+          
         ))}
         {[...Array(20)].map((_, i) => (
           <Gift
