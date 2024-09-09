@@ -21,7 +21,7 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
   const [isAllowed, setIsAllowed] = useState(false);
 
   useEffect(() => {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    const userAgent = navigator.userAgent || navigator.vendor;
 
     // Check if the user is on a mobile device
     const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
