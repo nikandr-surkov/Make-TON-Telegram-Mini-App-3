@@ -16,7 +16,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>{children}
+       {/* Footer */}
+      <footer className="bg-red-900 text-white py-4 px-6 flex justify-between items-center">
+        <div className="flex items-center space-x-4">
+          <Bell className="text-yellow-400" />
+          <span className="font-bold text-lg">Merry Christmas!</span>
+        </div>
+        <nav className="flex space-x-4">
+          <NavLink href="/friends">Friends</NavLink>
+          <NavLink href="/tasks">Tasks</NavLink>
+        </nav>
+      </footer>
+        </body>
     </html>
   );
 }
