@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState, ReactNode } from 'react';
 import Link from 'next/link';
-import { Snowflake } from 'lucide-react';
-import ReferralSystem from '@/components/ReferralSystem';
+import { Snowflake, Gift, Bell } from 'lucide-react';
 
 interface NavLinkProps {
   href: string;
@@ -47,26 +46,70 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-cover bg-center relative overflow-hidden" style={{ backgroundImage: 'url("/christmas_bg.jpeg")' }}>
-      <div className="absolute inset-0 bg-black bg-opacity-50" />
-      <div className="relative z-10 w-64 h-64 perspective-1000">
-        <div className="w-full h-full animate-tree-rotate transform-style-3d">
-          <div className="absolute w-full h-full backface-hidden">
-            <img
-              src="/christmas_tree.png"
-              alt="Christmas Tree Front"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="absolute w-full h-full backface-hidden rotate-y-180">
-            <img
-              src="/christmas_tree.png"
-              alt="Christmas Tree Back"
-              className="w-full h-full object-cover"
-            />
+    <main className="min-h-screen flex flex-col justify-between bg-gradient-to-b from-red-700 to-green-800 relative overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(50)].map((_, i) => (
+          <Snowflake
+            key={i}
+            className="text-white opacity-50 absolute animate-fall"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `-${Math.random() * 20}%`,
+              fontSize: `${Math.random() * 20 + 10}px`,
+              animationDuration: `${Math.random() * 10 + 5}s`,
+              animationDelay: `${Math.random() * 5}s`,
+            }}
+          />
+        ))}
+        {[...Array(20)].map((_, i) => (
+          <Gift
+            key={i}
+            className="text-yellow-400 opacity-50 absolute animate-float"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              fontSize: `${Math.random() * 30 + 20}px`,
+              animationDuration: `${Math.random() * 10 + 10}s`,
+              animationDelay: `${Math.random() * 5}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Christmas Tree */}
+      <div className="flex-grow flex items-center justify-center">
+        <div className="w-3/4 h-3/4 max-w-3xl max-h-3xl perspective-1000">
+          <div className="w-full h-full animate-tree-rotate transform-style-3d">
+            <div className="absolute w-full h-full backface-hidden">
+              <img
+                src="/christmas_tree.png"
+                alt="Christmas Tree Front"
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="absolute w-full h-full backface-hidden rotate-y-180">
+              <img
+                src="/christmas_tree.png"
+                alt="Christmas Tree Back"
+                className="w-full h-full object-contain"
+              />
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-red-900 text-white py-4 px-6 flex justify-between items-center">
+        <div className="flex items-center space-x-4">
+          <Bell className="text-yellow-400" />
+          <span className="font-bold text-lg">Merry Christmas!</span>
+        </div>
+        <nav className="flex space-x-4">
+          <NavLink href="/about">About</NavLink>
+          <NavLink href="/contact">Contact</NavLink>
+        </nav>
+      </footer>
     </main>
   );
 }
