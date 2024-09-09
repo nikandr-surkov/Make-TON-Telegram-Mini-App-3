@@ -8,7 +8,56 @@ const SNOWFLAKE_SIZES = ['text-3xl', 'text-4xl', 'text-5xl', 'text-6xl'];
 const TAP_THRESHOLD = 5 + Math.floor(Math.random() * 8); // Random between 5 and 12
 const COIN_AMOUNTS = [200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000];
 
-// ... (keep your SnowflakeElement, BurstEffect, and CoinBox components as they are)
+const SnowflakeElement = ({ onClick, id, x, y, size }: { onClick: (id: number) => void; id: number; x: number; y: number; size: string }) => {
+  return (
+    <div
+      className={`absolute cursor-pointer ${size} text-white animate-fall`}
+      style={{
+        left: `${x}%`,
+        top: `${y}%`,
+      }}
+      onClick={() => onClick(id)}
+    >
+      ❄️
+    </div>
+  );
+};
+
+const BurstEffect = ({ x, y }: { x: number; y: number }) => {
+  return (
+    <div className="absolute pointer-events-none" style={{ left: `${x}%`, top: `${y}%` }}>
+      {[...Array(8)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute w-2 h-2 bg-white rounded-full animate-burst"
+          style={{
+            transform: `rotate(${i * 45}deg) translateY(-20px)`,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+const CoinBox = ({ amount, onComplete }: { amount: number; onComplete: () => void }) => {
+  useEffect(() => {
+    const timer = setTimeout(onComplete, 2000);
+    return () => clearTimeout(timer);
+  }, [onComplete]);
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-50">
+      <div className="relative">
+        <Gift className="text-red-600 w-32 h-32 animate-bounce" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-4xl font-bold text-yellow-400 animate-coin-reveal">
+            +{amount}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function Home() {
   const [coins, setCoins] = useState(0);
