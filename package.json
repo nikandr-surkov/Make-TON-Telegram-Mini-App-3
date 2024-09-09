@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@telegram-apps/sdk": "^1.1.3",
+    "@vercel/postgres": "^0.10.0",
+    "geoip-lite": "^1.4.10",
+    "country-list": "2.3.0 ",
     "@twa-dev/sdk": "^7.8.0",
     "next": "14.2.6",
     "react": "^18",
