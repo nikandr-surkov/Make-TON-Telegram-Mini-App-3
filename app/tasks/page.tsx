@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { CheckSquare, Gift, Tree, ExternalLink, Snowflake, Bell } from 'lucide-react'
+import { CheckSquare, Gift, Trees, ExternalLink, Snowflake, Bell } from 'lucide-react'
 
 interface Task {
   id: number;
@@ -112,7 +112,7 @@ export default function Tasks() {
                   {task.completed ? (
                     <Gift className="text-green-600 mr-3" size={24} />
                   ) : (
-                    <Tree className="text-red-600 mr-3" size={24} />
+                    <Trees className="text-red-600 mr-3" size={24} />
                   )}
                   <span className={`${task.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
                     {task.description}
@@ -134,7 +134,7 @@ export default function Tasks() {
               {verifyingTask === task.id && (
                 <div className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center rounded-lg">
                   <div className="text-center">
-                    <p className="mb-4">Are you sure you've completed this task?</p>
+                    <p className="mb-4">Are you sure you have completed this task?</p>
                     <div className="flex justify-center space-x-4">
                       <button
                         onClick={() => completeTask(task.id)}
