@@ -28,17 +28,18 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="flex items-center space-x-4">
           <Bell className="text-yellow-400" />
           <Link href="/">
-            <span className="font-bold text-lg cursor-pointer">🎅</span>
+            {/* Increased font size of the Santa emoji */}
+            <span className="font-bold text-4xl cursor-pointer">🎅</span>
           </Link>
         </div>
-        <nav className="flex space-x-6">
+        <nav className="flex space-x-8"> {/* Increased space between nav links */}
           <NavLink href="/friends">
-            <Users size={20} />
-            <span>Friends</span>
+            <Users size={24} /> {/* Increased icon size for consistency */}
+            <span className="text-lg">Friends</span> {/* Made text slightly larger */}
           </NavLink>
           <NavLink href="/tasks">
-            <CheckSquare size={20} />
-            <span>Tasks</span>
+            <CheckSquare size={24} /> {/* Increased icon size for consistency */}
+            <span className="text-lg">Tasks</span> {/* Made text slightly larger */}
           </NavLink>
         </nav>
       </footer>
