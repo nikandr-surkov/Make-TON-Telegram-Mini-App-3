@@ -81,15 +81,34 @@ export default function Home() {
         
         // Load coins from localStorage
         const storedCoins = localStorage.getItem('coins');
-        if (storedCoins) {
-          setCoins(parseInt(storedCoins, 10));
+        const localCoins = storedCoins ? parseInt(storedCoins, 10) : 0;
+        setCoins(localCoins);
+  
+        // Fetch user data from the database
+        const response = await fetch(`/api/user?telegram_id=${WebApp.initDataUnsafe.user?.id}`);
+        const userData = await response.json();
+  
+        if (userData.success && userData.coinBalance) {
+          const dbCoins = parseInt(userData.coinBalance, 10);
+          
+          // Update localStorage if database value is higher
+          if (dbCoins > localCoins) {
+            localStorage.setItem('coins', dbCoins.toString());
+            setCoins(dbCoins);
+          }
+  
+          // Check if it's time to sync with the database
+          const lastUpdate = localStorage.getItem('lastCoinUpdate');
+          const now = new Date().getTime();
+          if (!lastUpdate || now - parseInt(lastUpdate) > 3 * 24 * 60 * 60 * 1000) {
+            await updateUserData(WebApp.initDataUnsafe.user?.id.toString() || '', WebApp.initDataUnsafe.user?.username || '', startParam, Math.max(localCoins, dbCoins));
+            localStorage.setItem('lastCoinUpdate', now.toString());
+          }
         }
-
-        // Update user data in the database
-        await updateUserData(WebApp.initDataUnsafe.user?.id.toString() || '', WebApp.initDataUnsafe.user?.username || '', startParam, parseInt(storedCoins || '0', 10));
       }
     };
     initWebApp();
+  }, []);
 
     // Initialize snowflakes
     const initialSnowflakes = Array.from({ length: SNOWFLAKE_COUNT }, (_, i) => ({ 
