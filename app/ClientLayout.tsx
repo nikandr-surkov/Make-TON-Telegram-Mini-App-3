@@ -26,8 +26,8 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
     // Check if the user is on a mobile device
     const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
 
-    // Check if the user is accessing through Telegram
-    const isTelegram = userAgent.includes('Telegram');
+    // Check if the user is accessing through Telegram by looking for the 'Telegram.WebApp' object
+    const isTelegram = typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp;
 
     // Set the access permission
     if (isMobile && isTelegram) {
@@ -57,18 +57,17 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="flex items-center space-x-4">
           <Bell className="text-yellow-400" />
           <Link href="/">
-            {/* Increased font size of the Santa emoji */}
             <span className="font-bold text-4xl cursor-pointer">🎅</span>
           </Link>
         </div>
-        <nav className="flex space-x-8"> {/* Increased space between nav links */}
+        <nav className="flex space-x-8">
           <NavLink href="/friends">
-            <Users size={24} /> {/* Increased icon size for consistency */}
-            <span className="text-lg">Friends</span> {/* Made text slightly larger */}
+            <Users size={24} />
+            <span className="text-lg">Friends</span>
           </NavLink>
           <NavLink href="/tasks">
-            <CheckSquare size={24} /> {/* Increased icon size for consistency */}
-            <span className="text-lg">Tasks</span> {/* Made text slightly larger */}
+            <CheckSquare size={24} />
+            <span className="text-lg">Tasks</span>
           </NavLink>
         </nav>
       </footer>
