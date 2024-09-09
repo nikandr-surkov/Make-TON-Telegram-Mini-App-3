@@ -1,13 +1,21 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
-import geoip from 'geoip-lite';
-import { getName } from 'country-list';
+import fetch from 'node-fetch';
+
+async function getCountryFromIP(ip: string): Promise<string> {
+  try {
+    const response = await fetch(`https://ipapi.co/${ip}/country_name/`);
+    return await response.text() || 'Unknown';
+  } catch (error) {
+    console.error('Error fetching country:', error);
+    return 'Unknown';
+  }
+}
 
 export async function POST(request: Request) {
   const { telegram_id, telegram_username, referrer_id, coin_balance } = await request.json();
-  const ip = request.headers.get('x-forwarded-for') || '0.0.0.0';
-  const geo = geoip.lookup(ip);
-  const country = geo ? getName(geo.country) || 'Unknown' : 'Unknown';
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || '0.0.0.0';
+  const country = await getCountryFromIP(ip);
 
   try {
     await sql`
