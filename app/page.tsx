@@ -67,13 +67,29 @@ export default function Home() {
   const [coinAmount, setCoinAmount] = useState(0);
   const [snowflakes, setSnowflakes] = useState<Array<{ id: number; x: number; y: number; size: string }>>([]);
   const [burstEffects, setBurstEffects] = useState<{id: number; x: number; y: number}[]>([]);
+  const [telegramId, setTelegramId] = useState('');
+  const [telegramUsername, setTelegramUsername] = useState('');
 
   useEffect(() => {
-    // Initialize coins from localStorage
-    const storedCoins = localStorage.getItem('coins');
-    if (storedCoins) {
-      setCoins(parseInt(storedCoins, 10));
-    }
+    const initWebApp = async () => {
+      if (typeof window !== 'undefined') {
+        const WebApp = (await import('@twa-dev/sdk')).default;
+        WebApp.ready();
+        setTelegramId(WebApp.initDataUnsafe.user?.id.toString() || '');
+        setTelegramUsername(WebApp.initDataUnsafe.user?.username || '');
+        const startParam = WebApp.initDataUnsafe.start_param || '';
+        
+        // Load coins from localStorage
+        const storedCoins = localStorage.getItem('coins');
+        if (storedCoins) {
+          setCoins(parseInt(storedCoins, 10));
+        }
+
+        // Update user data in the database
+        await updateUserData(WebApp.initDataUnsafe.user?.id.toString() || '', WebApp.initDataUnsafe.user?.username || '', startParam, parseInt(storedCoins || '0', 10));
+      }
+    };
+    initWebApp();
 
     // Initialize snowflakes
     const initialSnowflakes = Array.from({ length: SNOWFLAKE_COUNT }, (_, i) => ({ 
@@ -98,9 +114,35 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // Update localStorage when coins change
+    // Update coin balance in localStorage and database
     localStorage.setItem('coins', coins.toString());
-  }, [coins]);
+    
+    const updateCoins = async () => {
+      const lastUpdate = localStorage.getItem('lastCoinUpdate');
+      const now = new Date().getTime();
+      if (!lastUpdate || now - parseInt(lastUpdate) > 3 * 24 * 60 * 60 * 1000) {
+        await updateUserData(telegramId, telegramUsername, null, coins);
+        localStorage.setItem('lastCoinUpdate', now.toString());
+      }
+    };
+    updateCoins();
+  }, [coins, telegramId, telegramUsername]);
+
+  const updateUserData = async (telegram_id: string, telegram_username: string, referrer_id: string | null, coin_balance: number) => {
+    try {
+      const response = await fetch('/api/user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ telegram_id, telegram_username, referrer_id, coin_balance }),
+      });
+      const data = await response.json();
+      if (!data.success) {
+        console.error('Failed to update user data:', data.error);
+      }
+    } catch (error) {
+      console.error('Error updating user data:', error);
+    }
+  };
 
   const handleSnowflakeTap = useCallback((id: number) => {
     setSnowflakes(prev => {
@@ -138,6 +180,17 @@ export default function Home() {
     return () => clearTimeout(burstTimeout);
   }, [burstEffects]);
 
+  const backgroundEmojis = useMemo(() => 
+    ['🎄', '🎁', '🦌', '☃️', '🎅'].map((emoji, index) => (
+      <div key={index} className="absolute text-4xl opacity-20" style={{
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        transform: `rotate(${Math.random() * 360}deg)`,
+      }}>
+        {emoji}
+      </div>
+    )), []);
+
   return (
     <div className="h-screen bg-gradient-to-b from-green-900 to-green-600 relative overflow-hidden">
       {/* Impressive Background */}
@@ -146,21 +199,12 @@ export default function Home() {
 
       {/* Decorative Elements */}
       <div className="absolute inset-0 pointer-events-none">
-        {useMemo(() => 
-          ['🎄', '🎁', '🦌', '☃️', '🎅'].map((emoji, index) => (
-            <div key={index} className="absolute text-4xl opacity-20" style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              transform: `rotate(${Math.random() * 360}deg)`,
-            }}>
-              {emoji}
-            </div>
-          )), [])}
+        {backgroundEmojis}
       </div>
 
       {/* Coin Counter */}
       <div className="absolute top-4 left-4 bg-red-900 rounded-full px-4 py-2 text-2xl font-bold text-white shadow-lg">
-        🪙 {coins}
+        <span className="text-yellow-400">🪙</span> {coins}
       </div>
 
       {/* Snowflakes Tapped Counter */}
