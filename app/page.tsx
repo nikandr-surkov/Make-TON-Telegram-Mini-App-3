@@ -8,56 +8,7 @@ const SNOWFLAKE_SIZES = ['text-3xl', 'text-4xl', 'text-5xl', 'text-6xl'];
 const TAP_THRESHOLD = 5 + Math.floor(Math.random() * 8); // Random between 5 and 12
 const COIN_AMOUNTS = [200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000];
 
-const SnowflakeElement = ({ onClick, id, x, y, size }: { onClick: (id: number) => void; id: number; x: number; y: number; size: string }) => {
-  return (
-    <div
-      className={`absolute cursor-pointer ${size} text-white animate-fall`}
-      style={{
-        left: `${x}%`,
-        top: `${y}%`,
-      }}
-      onClick={() => onClick(id)}
-    >
-      ❄️
-    </div>
-  );
-};
-
-const BurstEffect = ({ x, y }: { x: number; y: number }) => {
-  return (
-    <div className="absolute pointer-events-none" style={{ left: `${x}%`, top: `${y}%` }}>
-      {[...Array(8)].map((_, i) => (
-        <div
-          key={i}
-          className="absolute w-2 h-2 bg-white rounded-full animate-burst"
-          style={{
-            transform: `rotate(${i * 45}deg) translateY(-20px)`,
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
-const CoinBox = ({ amount, onComplete }: { amount: number; onComplete: () => void }) => {
-  useEffect(() => {
-    const timer = setTimeout(onComplete, 2000);
-    return () => clearTimeout(timer);
-  }, [onComplete]);
-
-  return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="relative">
-        <Gift className="text-red-600 w-32 h-32 animate-bounce" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-4xl font-bold text-yellow-400 animate-coin-reveal">
-            +{amount}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+// ... (keep your SnowflakeElement, BurstEffect, and CoinBox components as they are)
 
 export default function Home() {
   const [coins, setCoins] = useState(0);
@@ -70,22 +21,6 @@ export default function Home() {
   const [telegramId, setTelegramId] = useState('');
   const [telegramUsername, setTelegramUsername] = useState('');
 
-  const updateUserData = async (telegram_id: string, telegram_username: string, referrer_id: string | null, coin_balance: number) => {
-    try {
-      const response = await fetch('/api/user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ telegram_id, telegram_username, referrer_id, coin_balance }),
-      });
-      const data = await response.json();
-      if (!data.success) {
-        console.error('Failed to update user data:', data.error);
-      }
-    } catch (error) {
-      console.error('Error updating user data:', error);
-    }
-  };
-
   useEffect(() => {
     const initWebApp = async () => {
       if (typeof window !== 'undefined') {
@@ -93,32 +28,10 @@ export default function Home() {
         WebApp.ready();
         setTelegramId(WebApp.initDataUnsafe.user?.id.toString() || '');
         setTelegramUsername(WebApp.initDataUnsafe.user?.username || '');
-        const startParam = WebApp.initDataUnsafe.start_param || '';
         
         // Load coins from localStorage
         const storedCoins = localStorage.getItem('coins');
-        const localCoins = storedCoins ? parseInt(storedCoins, 10) : 0;
-        setCoins(localCoins);
-  
-        // Fetch user data from the database
-        const response = await fetch(`/api/user?telegram_id=${WebApp.initDataUnsafe.user?.id}`);
-        const userData = await response.json();
-  
-        if (userData.success && userData.coinBalance) {
-          const dbCoins = parseInt(userData.coinBalance, 10);
-          
-          // Only update if database value is higher
-          if (dbCoins > localCoins) {
-            localStorage.setItem('coins', dbCoins.toString());
-            setCoins(dbCoins);
-          } else {
-            // If local value is higher, update the database
-            await updateUserData(WebApp.initDataUnsafe.user?.id.toString() || '', WebApp.initDataUnsafe.user?.username || '', startParam, localCoins);
-          }
-  
-          // Update last sync time
-          localStorage.setItem('lastCoinUpdate', new Date().getTime().toString());
-        }
+        setCoins(storedCoins ? parseInt(storedCoins, 10) : 0);
       }
     };
     initWebApp();
@@ -145,20 +58,7 @@ export default function Home() {
     return () => clearInterval(animationInterval);
   }, []);
 
-  useEffect(() => {
-    // Update coin balance in database periodically
-    const updateCoins = async () => {
-      const lastUpdate = localStorage.getItem('lastCoinUpdate');
-      const now = new Date().getTime();
-      if (!lastUpdate || now - parseInt(lastUpdate) > 3 * 24 * 60 * 60 * 1000) {
-        await updateUserData(telegramId, telegramUsername, null, coins);
-        localStorage.setItem('lastCoinUpdate', now.toString());
-      }
-    };
-    updateCoins();
-  }, [coins, telegramId, telegramUsername]);
-
-  // New useEffect to update localStorage whenever coins change
+  // Update localStorage whenever coins change
   useEffect(() => {
     localStorage.setItem('coins', coins.toString());
   }, [coins]);
@@ -211,7 +111,7 @@ export default function Home() {
     )), []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-900 to-green-600 relative overflow-hidden">
+    <div className="h-screen bg-gradient-to-b from-green-900 to-green-600 relative overflow-hidden">
       {/* Impressive Background */}
       <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/winter_landscape.jpg')" }} />
       <div className="absolute inset-0 bg-green-900 bg-opacity-50" /> {/* Overlay to maintain green tint */}
