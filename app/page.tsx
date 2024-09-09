@@ -80,8 +80,8 @@ export default function Home() {
 
       {/* Christmas Tree */}
       <div className="flex-grow flex items-center justify-center">
-        <div className="w-3/4 h-3/4 max-w-3xl max-h-3xl perspective-1000">
-          <div className="w-full h-full animate-tree-rotate transform-style-3d">
+        <div className="w-3/4 h-3/4 max-w-3xl max-h-3xl perspective-[1000px]">
+          <div className="w-full h-full animate-tree-rotate [transform-style:preserve-3d]">
             <div className="absolute w-full h-full backface-hidden">
               <img
                 src="/christmas_tree.png"
@@ -89,7 +89,7 @@ export default function Home() {
                 className="w-full h-full object-contain"
               />
             </div>
-            <div className="absolute w-full h-full backface-hidden rotate-y-180">
+            <div className="absolute w-full h-full backface-hidden [transform:rotateY(180deg)]">
               <img
                 src="/christmas_tree.png"
                 alt="Christmas Tree Back"
@@ -107,8 +107,8 @@ export default function Home() {
           <span className="font-bold text-lg">Merry Christmas!</span>
         </div>
         <nav className="flex space-x-4">
-          <NavLink href="/about">About</NavLink>
-          <NavLink href="/contact">Contact</NavLink>
+          <NavLink href="/friends">Friends</NavLink>
+          <NavLink href="/tasks">Tasks</NavLink>
         </nav>
       </footer>
     </main>
