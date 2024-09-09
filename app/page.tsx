@@ -1,116 +1,93 @@
 'use client';
 
-import React, { useEffect, useState, ReactNode } from 'react';
-import Link from 'next/link';
-import { Snowflake, Gift, Bell } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Snowflake, Gift } from 'lucide-react';
 
-interface NavLinkProps {
-  href: string;
-  children: ReactNode;
-}
+const SNOWFLAKE_COUNT = 50;
+const SNOWFLAKE_SIZES = ['text-lg', 'text-xl', 'text-2xl', 'text-3xl'];
+const TAP_THRESHOLD = 15;
+const COIN_AMOUNTS = [200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000];
 
-const NavLink: React.FC<NavLinkProps> = ({ href, children }) => (
-  <Link href={href} className="text-white hover:text-red-300 transition-colors duration-200">
-    {children}
-  </Link>
-);
-
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: ReactNode;
-  className?: string;
-}
-
-const Card: React.FC<CardProps> = ({ children, className = '', ...props }) => (
-  <div className={`bg-white bg-opacity-90 shadow-xl rounded-lg overflow-hidden ${className}`} {...props}>
-    {children}
-  </div>
-);
-
-export default function Home() {
-  const [initData, setInitData] = useState<string>('');
-  const [userId, setUserId] = useState<string>('');
-  const [startParam, setStartParam] = useState<string>('');
-
-  useEffect(() => {
-    const initWebApp = async () => {
-      if (typeof window !== 'undefined') {
-        const WebApp = (await import('@twa-dev/sdk')).default;
-        WebApp.ready();
-        setInitData(WebApp.initData);
-        setUserId(WebApp.initDataUnsafe.user?.id.toString() || '');
-        setStartParam(WebApp.initDataUnsafe.start_param || '');
-      }
-    };
-
-    initWebApp();
-  }, []);
-
+const Snowflake = ({ onClick }: { onClick: () => void }) => {
+  const size = SNOWFLAKE_SIZES[Math.floor(Math.random() * SNOWFLAKE_SIZES.length)];
   return (
-    <main className="min-h-screen flex flex-col justify-between bg-gradient-to-b from-red-700 to-green-800 relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(50)].map((_, i) => (
-          <Snowflake
-            key={i}
-            className="text-white opacity-50 absolute animate-fall"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `-${Math.random() * 20}%`,
-              fontSize: `${Math.random() * 20 + 10}px`,
-              animationDuration: `${Math.random() * 10 + 5}s`,
-              animationDelay: `${Math.random() * 5}s`,
-            }}
-          />
-          
-        ))}
-        {[...Array(20)].map((_, i) => (
-          <Gift
-            key={i}
-            className="text-yellow-400 opacity-50 absolute animate-float"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              fontSize: `${Math.random() * 30 + 20}px`,
-              animationDuration: `${Math.random() * 10 + 10}s`,
-              animationDelay: `${Math.random() * 5}s`,
-            }}
-          />
-        ))}
-      </div>
+    <div
+      className={`absolute cursor-pointer ${size} text-white animate-fall`}
+      style={{
+        left: `${Math.random() * 100}%`,
+        animationDuration: `${Math.random() * 10 + 5}s`,
+        animationDelay: `${Math.random() * 5}s`,
+      }}
+      onClick={onClick}
+    >
+      ❄️
+    </div>
+  );
+};
 
-      {/* Christmas Tree */}
-      <div className="flex-grow flex items-center justify-center">
-        <div className="w-3/4 h-3/4 max-w-3xl max-h-3xl perspective-[1000px]">
-          <div className="w-full h-full animate-tree-rotate [transform-style:preserve-3d]">
-            <div className="absolute w-full h-full backface-hidden">
-              <img
-                src="/christmas_tree.png"
-                alt="Christmas Tree Front"
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div className="absolute w-full h-full backface-hidden [transform:rotateY(180deg)]">
-              <img
-                src="/christmas_tree.png"
-                alt="Christmas Tree Back"
-                className="w-full h-full object-contain"
-              />
-            </div>
+const CoinBox = ({ amount, onComplete }: { amount: number; onComplete: () => void }) => {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-50">
+      <div className="relative">
+        <Gift className="text-red-600 w-32 h-32 animate-bounce" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-4xl font-bold text-yellow-400 animate-coin-reveal">
+            +{amount}
           </div>
         </div>
       </div>
+    </div>
+  );
+};
 
-      {/* Footer */}
-      <footer className="bg-red-900 text-white py-4 px-6 flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-          <Bell className="text-yellow-400" />
-          <span className="font-bold text-lg">Merry Christmas!</span>
-        </div>
-        <nav className="flex space-x-4">
-          <NavLink href="/friends">Friends</NavLink>
-          <NavLink href="/tasks">Tasks</NavLink>
-        </nav>
-      </footer>
+export default function Home() {
+  const [coins, setCoins] = useState(0);
+  const [taps, setTaps] = useState(0);
+  const [showCoinBox, setShowCoinBox] = useState(false);
+  const [coinAmount, setCoinAmount] = useState(0);
+
+  const handleSnowflakeTap = useCallback(() => {
+    setTaps((prevTaps) => {
+      const newTaps = prevTaps + 1;
+      if (newTaps >= TAP_THRESHOLD) {
+        const amount = COIN_AMOUNTS[Math.floor(Math.random() * COIN_AMOUNTS.length)];
+        setShowCoinBox(true);
+        setCoinAmount(amount);
+        setCoins((prevCoins) => prevCoins + amount);
+        return 0;
+      }
+      return newTaps;
+    });
+  }, []);
+
+  const handleCoinBoxComplete = useCallback(() => {
+    setShowCoinBox(false);
+    setCoinAmount(0);
+  }, []);
+
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-600 relative overflow-hidden">
+      {/* Santa Hat */}
+      <div className="absolute top-0 right-0 w-32 h-32 overflow-hidden">
+        <div className="absolute top-0 right-0 w-0 h-0 border-t-[64px] border-t-red-600 border-l-[64px] border-l-transparent"></div>
+        <div className="absolute top-0 right-0 w-32 h-16 bg-red-600 rounded-b-full"></div>
+        <div className="absolute top-0 right-0 w-8 h-8 bg-white rounded-full transform translate-x-2 translate-y-2"></div>
+      </div>
+
+      {/* Coin Counter */}
+      <div className="absolute top-4 left-4 bg-yellow-400 rounded-full px-4 py-2 text-2xl font-bold text-white shadow-lg">
+        🪙 {coins}
+      </div>
+
+      {/* Snowflakes */}
+      {[...Array(SNOWFLAKE_COUNT)].map((_, index) => (
+        <Snowflake key={index} onClick={handleSnowflakeTap} />
+      ))}
+
+      {/* Coin Box */}
+      {showCoinBox && (
+        <CoinBox amount={coinAmount} onComplete={handleCoinBoxComplete} />
+      )}
     </main>
   );
 }
