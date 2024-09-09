@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Gift } from 'lucide-react';
 
 const SNOWFLAKE_COUNT = 30;
@@ -146,15 +146,16 @@ export default function Home() {
 
       {/* Decorative Elements */}
       <div className="absolute inset-0 pointer-events-none">
-        {['🎄', '🎁', '🦌', '☃️', '🎅'].map((emoji, index) => (
-          <div key={index} className="absolute text-4xl opacity-20" style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            transform: `rotate(${Math.random() * 360}deg)`,
-          }}>
-            {emoji}
-          </div>
-        ))}
+        {useMemo(() => 
+          ['🎄', '🎁', '🦌', '☃️', '🎅'].map((emoji, index) => (
+            <div key={index} className="absolute text-4xl opacity-20" style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              transform: `rotate(${Math.random() * 360}deg)`,
+            }}>
+              {emoji}
+            </div>
+          )), [])}
       </div>
 
       {/* Coin Counter */}
