@@ -17,11 +17,10 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
 
 const ClientLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex flex-col min-h-screen">
-      <main className="flex-grow">
+    <div className="flex flex-col h-screen">
+      <main className="flex-grow overflow-hidden">
         {children}
       </main>
-      {/* Footer */}
       <footer className="bg-red-900 text-white py-4 px-6 flex justify-between items-center">
         <div className="flex items-center space-x-4">
           <Bell className="text-yellow-400" />
