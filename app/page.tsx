@@ -107,7 +107,7 @@ export default function Home() {
         if (userData.success && userData.coinBalance) {
           const dbCoins = parseInt(userData.coinBalance, 10);
           
-          // Update localStorage if database value is higher
+          // Only update if database value is higher
           if (dbCoins > localCoins) {
             localStorage.setItem('coins', dbCoins.toString());
             setCoins(dbCoins);
@@ -213,7 +213,7 @@ export default function Home() {
     )), []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-900 to-green-600 relative">
+    <div className="min-h-screen bg-gradient-to-b from-green-900 to-green-600 relative overflow-hidden">
       {/* Impressive Background */}
       <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/winter_landscape.jpg')" }} />
       <div className="absolute inset-0 bg-green-900 bg-opacity-50" /> {/* Overlay to maintain green tint */}
