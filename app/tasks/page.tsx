@@ -86,6 +86,7 @@ export default function Task() {
           ));
           setSelectedTask(prevTask => prevTask ? {...prevTask, status: 'Completed'} : null);
           saveCompletedTask(taskId);
+          updateCoinsBalance(taskId);
           return 0;
         }
         return prev - 1;
@@ -96,6 +97,19 @@ export default function Task() {
   const saveCompletedTask = (taskId: number) => {
     const storedCompletedTasks = JSON.parse(localStorage.getItem('completedTasks') || '[]');
     localStorage.setItem('completedTasks', JSON.stringify([...storedCompletedTasks, taskId]));
+  };
+
+  // Function to update coins balance by adding the task's reward
+  const updateCoinsBalance = (taskId: number) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      // Get the current coins value and parse it as an integer (default to 0 if it doesn't exist)
+      const currentCoins = parseInt(localStorage.getItem('coins') || '0', 10);
+      // Add the reward for the task to the current coins
+      const newCoins = currentCoins + task.reward;
+      // Save the new coins value back to localStorage
+      localStorage.setItem('coins', newCoins.toString());
+    }
   };
 
   const renderContent = () => {
@@ -177,7 +191,7 @@ export default function Task() {
             <p className="text-white mb-4">{selectedTask.description}</p>
             {isVerifying && (
               <p className="text-white mb-4">
-                Make sure you&apos;ve completed the task. Santa&apos;s watching! ({countdown}s) 🎅
+                Make sure you've completed the task. Santa's watching! ({countdown}s) 🎅
               </p>
             )}
             {error && (
