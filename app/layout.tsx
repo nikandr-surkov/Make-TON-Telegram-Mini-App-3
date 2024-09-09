@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { NavLink } from "react-router-dom";
+import { Link } from "next/link";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
@@ -25,8 +25,8 @@ export default function RootLayout({
           <span className="font-bold text-lg">Merry Christmas!</span>
         </div>
         <nav className="flex space-x-4">
-          <NavLink href="/friends">Friends</NavLink>
-          <NavLink href="/tasks">Tasks</NavLink>
+          <Link href="/friends">Friends</Link>
+          <Link href="/tasks">Tasks</Link>
         </nav>
       </footer>
         </body>
