@@ -8,29 +8,24 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-      },
       keyframes: {
-        rotate: {
-          '0%': { transform: 'rotateY(0deg)' },
-          '100%': { transform: 'rotateY(360deg)' },
-        },
         fall: {
-          '0%': { transform: 'translateY(-100%) rotate(0deg)' },
-          '100%': { transform: 'translateY(100vh) rotate(360deg)' },
+          '0%': { transform: 'translateY(-100vh)' },
+          '100%': { transform: 'translateY(100vh)' },
         },
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-20px)' },
+        bounce: {
+          '0%, 100%': { transform: 'translateY(-25%)' },
+          '50%': { transform: 'translateY(0)' },
+        },
+        'coin-reveal': {
+          '0%': { transform: 'scale(0) rotate(-45deg)', opacity: '0' },
+          '100%': { transform: 'scale(1) rotate(0deg)', opacity: '1' },
         },
       },
       animation: {
-        'tree-rotate': 'rotate 10s linear infinite',
         'fall': 'fall linear infinite',
-        'float': 'float 3s ease-in-out infinite',
+        'bounce': 'bounce 1s ease-in-out infinite',
+        'coin-reveal': 'coin-reveal 0.5s ease-out forwards',
       },
     },
   },
