@@ -1,7 +1,7 @@
 'use client'
 import ReferralSystem from '@/components/ReferralSystem'
 import { useEffect, useState } from 'react'
-import { Gift, ChristmasTree, Users } from 'lucide-react'
+import { Gift, Trees, Users } from 'lucide-react'
 
 export default function Friends() {
   const [initData, setInitData] = useState('')
@@ -32,7 +32,7 @@ export default function Friends() {
         <ReferralSystem initData={initData} userId={userId} startParam={startParam} />
         <div className="mt-8 flex justify-center">
           <Gift className="text-red-700 mr-2" size={24} />
-          <ChristmasTree className="text-green-800 ml-2" size={24} />
+          <Trees className="text-green-800 ml-2" size={24} />
         </div>
       </div>
     </main>
