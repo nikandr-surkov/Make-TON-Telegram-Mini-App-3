@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Gift } from 'lucide-react';
 
 const SNOWFLAKE_COUNT = 30;
@@ -61,7 +61,6 @@ const CoinBox = ({ amount, onComplete }: { amount: number; onComplete: () => voi
 
 export default function Home() {
   const [coins, setCoins] = useState(() => {
-    // Immediately retrieve coins from localStorage when component mounts
     if (typeof window !== 'undefined') {
       const storedCoins = localStorage.getItem('coins');
       return storedCoins ? parseInt(storedCoins, 10) : 0;
@@ -76,6 +75,63 @@ export default function Home() {
   const [burstEffects, setBurstEffects] = useState<{id: number; x: number; y: number}[]>([]);
   const [telegramId, setTelegramId] = useState('');
   const [telegramUsername, setTelegramUsername] = useState('');
+
+  // Audio context and sources
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const bgMusicSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const tapMusicBufferRef = useRef<AudioBuffer | null>(null);
+  const comboMusicBufferRef = useRef<AudioBuffer | null>(null);
+
+  // Initialize audio context and load sounds
+  useEffect(() => {
+    const initAudio = async () => {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      const loadSound = async (url: string) => {
+        const response = await fetch(url);
+        const arrayBuffer = await response.arrayBuffer();
+        return await audioContextRef.current!.decodeAudioData(arrayBuffer);
+      };
+
+      const [bgBuffer, tapBuffer, comboBuffer] = await Promise.all([
+        loadSound('gamemusic/bg-music.mp3'),
+        loadSound('gamemusic/tap-music.mp3'),
+        loadSound('gamemusic/combo-music.mp3')
+      ]);
+
+      // Start background music
+      bgMusicSourceRef.current = audioContextRef.current.createBufferSource();
+      bgMusicSourceRef.current.buffer = bgBuffer;
+      bgMusicSourceRef.current.loop = true;
+      bgMusicSourceRef.current.connect(audioContextRef.current.destination);
+      bgMusicSourceRef.current.start();
+
+      // Store other buffers for later use
+      tapMusicBufferRef.current = tapBuffer;
+      comboMusicBufferRef.current = comboBuffer;
+    };
+
+    initAudio();
+
+    return () => {
+      if (bgMusicSourceRef.current) {
+        bgMusicSourceRef.current.stop();
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, []);
+
+  // Play sound effect
+  const playSound = useCallback((buffer: AudioBuffer) => {
+    if (audioContextRef.current) {
+      const source = audioContextRef.current.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioContextRef.current.destination);
+      source.start();
+    }
+  }, []);
 
   useEffect(() => {
     const initWebApp = async () => {
@@ -132,11 +188,19 @@ export default function Home() {
         setShowCoinBox(true);
         setCoinAmount(amount);
         setCoins((prevCoins) => prevCoins + amount);
+        // Play combo sound
+        if (comboMusicBufferRef.current) {
+          playSound(comboMusicBufferRef.current);
+        }
         return 0;
       }
       return newTaps;
     });
-  }, []);
+    // Play tap sound
+    if (tapMusicBufferRef.current) {
+      playSound(tapMusicBufferRef.current);
+    }
+  }, [playSound]);
 
   const handleCoinBoxComplete = useCallback(() => {
     setShowCoinBox(false);
