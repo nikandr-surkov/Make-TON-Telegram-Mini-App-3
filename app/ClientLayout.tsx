@@ -64,23 +64,24 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
         {children}
       </main>
       <footer className="bg-red-900 text-white py-4 px-6 flex justify-between items-center fixed bottom-0 left-0 right-0">
-        <div className="flex items-center space-x-4">
-          <Bell className="text-yellow-400" />
-          <Link href="/">
-            <span className="font-bold text-4xl cursor-pointer">🎅</span>
-          </Link>
-        </div>
-        <nav className="flex space-x-8">
-          <NavLink href="/friends">
-            <Users size={24} />
-            <span className="text-lg">Friends</span>
-          </NavLink>
-          <NavLink href="/tasks">
-            <CheckSquare size={24} />
-            <span className="text-lg">Tasks</span>
-          </NavLink>
-        </nav>
-      </footer>
+  <div className="flex items-center space-x-4">
+    <img src="/path/to/telemas-treasure-chest.jpg" alt="Quest Chest" className="w-8 h-8" />
+    <Link href="/">
+      <span className="font-bold text-4xl cursor-pointer">🎅</span>
+    </Link>
+  </div>
+  <nav className="flex space-x-8">
+    <NavLink href="/friends">
+      <Users size={24} />
+      <span className="text-lg">Friends</span>
+    </NavLink>
+    <NavLink href="/tasks">
+      <CheckSquare size={24} />
+      <span className="text-lg">Tasks</span>
+    </NavLink>
+  </nav>
+</footer>
+
     </div>
   );
 };
