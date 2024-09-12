@@ -8,16 +8,16 @@ const SNOWFLAKE_SIZES = ['text-3xl', 'text-4xl', 'text-5xl', 'text-6xl'];
 const TAP_THRESHOLD = 9 + Math.floor(Math.random() * 4); // Random between 9 and 12
 const COIN_AMOUNTS = [50, 100, 150, 200, 250];
 
-const SnowflakeElement = ({ onClick, id, x, y, size }: { onClick: (id: number) => void; id: number; x: number; y: number; size: string }) => {
+const SnowflakeElement = ({ onClick, id, x, y, size }: { onClick: (id: number, x: number, y: number) => void; id: number; x: number; y: number; size: string }) => {
   return (
     <div
       className={`absolute cursor-pointer ${size} text-white animate-fall`}
       style={{
         left: `${x}%`,
         top: `${y}%`,
-        zIndex: 1, // Ensure snowflakes are above the background but below the counters
+        zIndex: 20, // Ensure snowflakes are above the background but below the counters
       }}
-      onClick={() => onClick(id)}
+      onClick={() => onClick(id, x, y)}
     >
       ❄️
     </div>
@@ -26,7 +26,7 @@ const SnowflakeElement = ({ onClick, id, x, y, size }: { onClick: (id: number) =
 
 const BurstEffect = ({ x, y }: { x: number; y: number }) => {
   return (
-    <div className="absolute pointer-events-none" style={{ left: `${x}%`, top: `${y}%` }}>
+    <div className="absolute pointer-events-none" style={{ left: `${x}%`, top: `${y}%`, zIndex: 30 }}>
       {[...Array(8)].map((_, i) => (
         <div
           key={i}
@@ -172,15 +172,9 @@ export default function Home() {
     localStorage.setItem('coins', coins.toString());
   }, [coins]);
 
-  const handleSnowflakeTap = useCallback((id: number) => {
-    setSnowflakes(prev => {
-      const tappedSnowflake = prev.find(sf => sf.id === id);
-      if (tappedSnowflake) {
-        setBurstEffects(bursts => [...bursts, { id: Date.now(), x: tappedSnowflake.x, y: tappedSnowflake.y }]);
-        return prev.map(sf => sf.id === id ? { ...sf, y: Math.random() * -100 - 20 } : sf);
-      }
-      return prev;
-    });
+  const handleSnowflakeTap = useCallback((id: number, x: number, y: number) => {
+    setSnowflakes(prev => prev.map(sf => sf.id === id ? { ...sf, y: Math.random() * -100 - 20 } : sf));
+    setBurstEffects(bursts => [...bursts, { id: Date.now(), x, y }]);
     setSnowflakesTapped(prev => prev + 1);
     setTaps((prevTaps) => {
       const newTaps = prevTaps + 1;
