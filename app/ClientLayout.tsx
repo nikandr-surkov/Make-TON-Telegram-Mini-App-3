@@ -63,7 +63,7 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
       <main className={`flex-grow ${isMainPage ? '' : 'overflow-auto pb-20'}`}>
         {children}
       </main>
-      <footer className="bg-red-900 text-white py-4 px-6 flex justify-between items-center fixed bottom-0 left-0 right-0">
+      <footer className="bg-red-900 text-white py-4 px-6 flex justify-between items-center fixed bottom-0 left-0 right-0 z-30">
   <div className="flex items-center space-x-4">
     <NavLink href="/dailychest">
     <img src="telemas-treasure-chest.png" alt="Quest Chest" className="w-8 h-8" />
