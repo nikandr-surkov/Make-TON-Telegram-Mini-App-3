@@ -3,7 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const StarBurst = ({ isVisible }) => {
+interface StarBurstProps {
+  isVisible: boolean;
+}
+
+const StarBurst: React.FC<StarBurstProps> = ({ isVisible }) => {
   if (!isVisible) return null;
 
   return (
@@ -26,7 +30,7 @@ const StarBurst = ({ isVisible }) => {
   );
 };
 
-const Snowflakes = () => (
+const Snowflakes: React.FC = () => (
   <div className="absolute inset-0 pointer-events-none overflow-hidden">
     {[...Array(20)].map((_, i) => (
       <div
@@ -45,11 +49,11 @@ const Snowflakes = () => (
   </div>
 );
 
-export default function DailyChest() {
-  const [coins, setCoins] = useState(0);
-  const [chestOpened, setChestOpened] = useState(false);
-  const [showStars, setShowStars] = useState(false);
-  const [newCoins, setNewCoins] = useState(0);
+const DailyChest: React.FC = () => {
+  const [coins, setCoins] = useState<number>(0);
+  const [chestOpened, setChestOpened] = useState<boolean>(false);
+  const [showStars, setShowStars] = useState<boolean>(false);
+  const [newCoins, setNewCoins] = useState<number>(0);
 
   useEffect(() => {
     const storedCoins = localStorage.getItem('coins');
@@ -134,3 +138,5 @@ export default function DailyChest() {
     </div>
   );
 }
+
+export default DailyChest;
