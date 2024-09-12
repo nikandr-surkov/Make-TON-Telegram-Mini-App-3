@@ -2,10 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import confettiModule from 'canvas-confetti';
-
-// Use type assertion to treat confettiModule as 'any'
-const confetti = confettiModule as any;
 
 export default function DailyChest() {
   const [coins, setCoins] = useState(0);
@@ -20,7 +16,7 @@ export default function DailyChest() {
     if (storedDate) setLastOpenedDate(storedDate);
   }, []);
 
-  const handleOpenChest = () => {
+  const handleOpenChest = async () => {
     const today = new Date().toDateString();
     if (lastOpenedDate === today) {
       alert("You've already opened the chest today. Come back tomorrow!");
@@ -35,6 +31,10 @@ export default function DailyChest() {
 
     localStorage.setItem('coins', updatedCoins.toString());
     localStorage.setItem('lastOpenedDate', today);
+
+    // Dynamically import confetti
+    const confettiModule = await import('canvas-confetti');
+    const confetti = confettiModule.default;
 
     // Trigger confetti effect
     confetti({
