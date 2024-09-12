@@ -15,6 +15,7 @@ const SnowflakeElement = ({ onClick, id, x, y, size }: { onClick: (id: number) =
       style={{
         left: `${x}%`,
         top: `${y}%`,
+        zIndex: 1, // Ensure snowflakes are above the background but below the counters
       }}
       onClick={() => onClick(id)}
     >
@@ -227,39 +228,45 @@ export default function Home() {
     )), []);
 
   return (
-    <div className="h-screen bg-gradient-to-b from-green-900 to-green-600 relative overflow-hidden">
-      {/* Impressive Background */}
-      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/winter_landscape.jpg')" }} />
-      <div className="absolute inset-0 bg-green-900 bg-opacity-50" /> {/* Overlay to maintain green tint */}
+    <div className="h-screen relative overflow-hidden">
+      {/* Background Image */}
+      <div className="absolute inset-0 bg-cover bg-center z-0" style={{ backgroundImage: "url('/winter_landscape.jpg')" }} />
+      <div className="absolute inset-0 bg-green-900 bg-opacity-50 z-0" /> {/* Overlay to maintain green tint */}
 
       {/* Decorative Elements */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0 pointer-events-none z-10">
         {backgroundEmojis}
       </div>
 
+      {/* Snowflakes */}
+      <div className="absolute inset-0 z-20">
+        {snowflakes.map((sf) => (
+          <SnowflakeElement key={sf.id} id={sf.id} x={sf.x} y={sf.y} size={sf.size} onClick={handleSnowflakeTap} />
+        ))}
+      </div>
+
+      {/* Burst Effects */}
+      <div className="absolute inset-0 z-30">
+        {burstEffects.map(burst => (
+          <BurstEffect key={burst.id} x={burst.x} y={burst.y} />
+        ))}
+      </div>
+
       {/* Coin Counter */}
-      <div className="absolute top-4 left-4 bg-red-900 rounded-full px-4 py-2 text-2xl font-bold text-white shadow-lg">
+      <div className="absolute top-4 left-4 bg-red-900 rounded-full px-4 py-2 text-2xl font-bold text-white shadow-lg z-40">
         <span className="text-yellow-400">🪙</span> {coins}
       </div>
 
       {/* Snowflakes Tapped Counter */}
-      <div className="absolute top-4 right-4 bg-blue-400 rounded-full px-4 py-2 text-2xl font-bold text-white shadow-lg">
+      <div className="absolute top-4 right-4 bg-blue-400 rounded-full px-4 py-2 text-2xl font-bold text-white shadow-lg z-40">
         ❄️ {snowflakesTapped}
       </div>
 
-      {/* Snowflakes */}
-      {snowflakes.map((sf) => (
-        <SnowflakeElement key={sf.id} id={sf.id} x={sf.x} y={sf.y} size={sf.size} onClick={handleSnowflakeTap} />
-      ))}
-
-      {/* Burst Effects */}
-      {burstEffects.map(burst => (
-        <BurstEffect key={burst.id} x={burst.x} y={burst.y} />
-      ))}
-
       {/* Coin Box */}
       {showCoinBox && (
-        <CoinBox amount={coinAmount} onComplete={handleCoinBoxComplete} />
+        <div className="absolute inset-0 z-50">
+          <CoinBox amount={coinAmount} onComplete={handleCoinBoxComplete} />
+        </div>
       )}
     </div>
   );
