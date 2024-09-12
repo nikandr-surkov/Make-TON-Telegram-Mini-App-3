@@ -65,7 +65,9 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
       </main>
       <footer className="bg-red-900 text-white py-4 px-6 flex justify-between items-center fixed bottom-0 left-0 right-0">
   <div className="flex items-center space-x-4">
+    <NavLink href="/friends">
     <img src="/path/to/telemas-treasure-chest.jpg" alt="Quest Chest" className="w-8 h-8" />
+      </NavLink>
     <Link href="/">
       <span className="font-bold text-4xl cursor-pointer">🎅</span>
     </Link>
