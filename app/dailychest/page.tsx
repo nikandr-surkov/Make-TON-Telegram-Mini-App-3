@@ -31,6 +31,7 @@ export default function DailyChest() {
   const [chestOpened, setChestOpened] = useState(false);
   const [lastOpenedDate, setLastOpenedDate] = useState<string | null>(null);
   const [showStars, setShowStars] = useState(false);
+  const [claimCount, setClaimCount] = useState(0);
 
   useEffect(() => {
     const storedCoins = localStorage.getItem('coins');
@@ -38,24 +39,42 @@ export default function DailyChest() {
 
     const storedDate = localStorage.getItem('lastOpenedDate');
     if (storedDate) setLastOpenedDate(storedDate);
+
+    const storedClaimCount = localStorage.getItem('claimCount');
+    if (storedClaimCount) setClaimCount(parseInt(storedClaimCount));
+
+    // Reset claim count if it's a new day
+    const today = new Date().toDateString();
+    if (storedDate !== today) {
+      setClaimCount(0);
+      localStorage.setItem('claimCount', '0');
+    }
   }, []);
 
   const handleOpenChest = () => {
     const today = new Date().toDateString();
-    if (lastOpenedDate === today) {
-      alert("You've already opened the chest today. Come back tomorrow!");
+    if (lastOpenedDate !== today) {
+      setClaimCount(0);
+    }
+
+    if (claimCount >= 10) {
+      alert("You've reached the maximum number of claims for today. Come back tomorrow!");
       return;
     }
 
     const newCoins = Math.floor(Math.random() * 50) + 10; // Random between 10 and 59
     const updatedCoins = coins + newCoins;
+    const updatedClaimCount = claimCount + 1;
+
     setCoins(updatedCoins);
     setChestOpened(true);
     setLastOpenedDate(today);
     setShowStars(true);
+    setClaimCount(updatedClaimCount);
 
     localStorage.setItem('coins', updatedCoins.toString());
     localStorage.setItem('lastOpenedDate', today);
+    localStorage.setItem('claimCount', updatedClaimCount.toString());
 
     // Reset chest and hide stars after animation
     setTimeout(() => {
@@ -95,8 +114,9 @@ export default function DailyChest() {
       <button
         onClick={handleOpenChest}
         className="mt-8 px-6 py-3 bg-yellow-500 text-white rounded-full font-bold text-xl shadow-lg hover:bg-yellow-600 transition duration-300"
+        disabled={claimCount >= 10}
       >
-        Open Daily Chest
+        Open Daily Chest ({claimCount}/10)
       </button>
 
       <div className="mt-8 text-2xl font-bold text-white">
