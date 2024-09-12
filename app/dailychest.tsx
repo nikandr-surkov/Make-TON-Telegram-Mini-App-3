@@ -2,8 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+// @ts-ignore
 import confetti from 'canvas-confetti';
 
+// Add this type declaration at the top of your file
+declare module 'canvas-confetti';
 export default function DailyChest() {
   const [coins, setCoins] = useState(0);
   const [chestOpened, setChestOpened] = useState(false);
