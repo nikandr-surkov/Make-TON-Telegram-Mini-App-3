@@ -3,10 +3,34 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
+const StarBurst = ({ isVisible }: { isVisible: boolean }) => {
+  if (!isVisible) return null;
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(20)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute text-4xl animate-burst"
+          style={{
+            left: '50%',
+            top: '50%',
+            animation: `burst 1s ease-out forwards ${Math.random() * 0.5}s`,
+            transform: `rotate(${i * 18}deg) translateY(-100px)`,
+          }}
+        >
+          ⭐
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export default function DailyChest() {
   const [coins, setCoins] = useState(0);
   const [chestOpened, setChestOpened] = useState(false);
   const [lastOpenedDate, setLastOpenedDate] = useState<string | null>(null);
+  const [showStars, setShowStars] = useState(false);
 
   useEffect(() => {
     const storedCoins = localStorage.getItem('coins');
@@ -16,7 +40,7 @@ export default function DailyChest() {
     if (storedDate) setLastOpenedDate(storedDate);
   }, []);
 
-  const handleOpenChest = async () => {
+  const handleOpenChest = () => {
     const today = new Date().toDateString();
     if (lastOpenedDate === today) {
       alert("You've already opened the chest today. Come back tomorrow!");
@@ -28,23 +52,16 @@ export default function DailyChest() {
     setCoins(updatedCoins);
     setChestOpened(true);
     setLastOpenedDate(today);
+    setShowStars(true);
 
     localStorage.setItem('coins', updatedCoins.toString());
     localStorage.setItem('lastOpenedDate', today);
 
-    // Dynamically import confetti
-    const confettiModule = await import('canvas-confetti');
-    const confetti = confettiModule.default;
-
-    // Trigger confetti effect
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 }
-    });
-
-    // Reset chest after animation
-    setTimeout(() => setChestOpened(false), 2000);
+    // Reset chest and hide stars after animation
+    setTimeout(() => {
+      setChestOpened(false);
+      setShowStars(false);
+    }, 2000);
   };
 
   return (
@@ -72,6 +89,8 @@ export default function DailyChest() {
           </motion.div>
         )}
       </motion.div>
+
+      <StarBurst isVisible={showStars} />
 
       <button
         onClick={handleOpenChest}
