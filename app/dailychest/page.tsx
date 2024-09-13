@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-localStorage.setItem('openCount', '0');
+
 interface StarBurstProps {
   isVisible: boolean;
 }
@@ -111,6 +111,7 @@ const DailyChest: React.FC = () => {
       }, 5000);
     }, 3000); // 3 second delay for dramatic effect
   };
+localStorage.setItem('openCount', '0');
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-700 to-green-700 flex flex-col items-center justify-between p-4 sm:p-8 relative overflow-hidden">
