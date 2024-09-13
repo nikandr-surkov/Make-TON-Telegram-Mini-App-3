@@ -48,12 +48,15 @@ const DailyChest: React.FC = () => {
   const [openCount, setOpenCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [giftCard, setGiftCard] = useState<{ id: number, description: string } | null>(null);
+  const [collectedCards, setCollectedCards] = useState<number[]>([]);
 
   useEffect(() => {
     const storedCoins = localStorage.getItem('coins');
     const storedOpenCount = localStorage.getItem('openCount');
+    const storedCards = localStorage.getItem('collectedCards');
     if (storedCoins) setCoins(parseInt(storedCoins));
     if (storedOpenCount) setOpenCount(parseInt(storedOpenCount));
+    if (storedCards) setCollectedCards(JSON.parse(storedCards));
   }, []);
 
   const playAudio = (filename: string) => {
@@ -75,6 +78,9 @@ const DailyChest: React.FC = () => {
         const randomGiftCard = giftCards[Math.floor(Math.random() * giftCards.length)];
         setGiftCard(randomGiftCard);
         setNewCoins(0);
+        const updatedCollectedCards = [...collectedCards, randomGiftCard.id];
+        setCollectedCards(updatedCollectedCards);
+        localStorage.setItem('collectedCards', JSON.stringify(updatedCollectedCards));
       } else {
         const coinsToAdd = Math.floor(Math.random() * 901) + 100; // Random between 100 and 1000
         const updatedCoins = coins + coinsToAdd;
@@ -107,40 +113,63 @@ const DailyChest: React.FC = () => {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-b from-red-700 to-green-700 flex flex-col items-center justify-between p-8 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-red-700 to-green-700 flex flex-col items-center justify-between p-4 sm:p-8 relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('/snowflakes.png')] opacity-30 animate-fall"></div>
       
-      <div className="flex flex-col items-center z-20">
-        <h1 className="text-5xl font-bold text-white mb-8 text-center text-shadow-lg">
+      <div className="flex flex-col items-center z-20 w-full max-w-md">
+        <h1 className="text-3xl sm:text-5xl font-bold text-white mb-4 sm:mb-8 text-center text-shadow-lg">
           🎄 Mystery Box 🎁
         </h1>
         
-        <motion.div
-          className="relative"
-          animate={chestOpened ? { scale: 1.1, rotate: 360 } : { scale: 1, rotate: 0 }}
-          transition={{ duration: 1, type: 'spring', stiffness: 100 }}
-        >
-          <Image
-            src={chestOpened ? "/open-chest.png" : "/closed-chest.png"}
-            alt="Mystery Box"
-            width={320}
-            height={320}
-            className="object-contain filter drop-shadow-2xl"
-          />
-          <AnimatePresence>
-            {chestOpened && !giftCard && (
-              <motion.div
-                className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center"
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <span className="text-8xl animate-bounce">🪙</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+        <AnimatePresence>
+          {giftCard ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0, rotate: -180 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              exit={{ opacity: 0, scale: 0, rotate: 180 }}
+              transition={{ duration: 1, type: 'spring', stiffness: 100 }}
+              className="mb-4 flex flex-col items-center"
+            >
+              <Image
+                src={`/giftcards/${giftCard.id}.jpg`}
+                alt="Gift Card"
+                width={200}
+                height={200}
+                className="object-cover rounded-lg shadow-2xl"
+              />
+              <p className="mt-2 text-sm sm:text-base text-white text-center max-w-md italic text-shadow-lg">
+                &ldquo;{giftCard.description}&rdquo;
+              </p>
+            </motion.div>
+          ) : (
+            <motion.div
+              className="relative mb-4"
+              animate={chestOpened ? { scale: 1.1, rotate: 360 } : { scale: 1, rotate: 0 }}
+              transition={{ duration: 1, type: 'spring', stiffness: 100 }}
+            >
+              <Image
+                src={chestOpened ? "/open-chest.png" : "/closed-chest.png"}
+                alt="Mystery Box"
+                width={240}
+                height={240}
+                className="object-contain filter drop-shadow-2xl"
+              />
+              <AnimatePresence>
+                {chestOpened && newCoins > 0 && (
+                  <motion.div
+                    className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center"
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <span className="text-6xl sm:text-8xl animate-bounce">🪙</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <StarBurst isVisible={showStars} />
 
@@ -150,29 +179,9 @@ const DailyChest: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="mt-4 text-5xl font-bold text-yellow-300 z-30 text-shadow-lg"
+              className="mt-2 sm:mt-4 text-3xl sm:text-5xl font-bold text-yellow-300 z-30 text-shadow-lg"
             >
               +{newCoins} 🪙
-            </motion.div>
-          )}
-          {giftCard && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0, rotate: -180 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              exit={{ opacity: 0, scale: 0, rotate: 180 }}
-              transition={{ duration: 1, type: 'spring', stiffness: 100 }}
-              className="mt-4 flex flex-col items-center"
-            >
-              <Image
-                src={`/giftcards/${giftCard.id}.jpg`}
-                alt="Gift Card"
-                width={256}
-                height={256}
-                className="object-cover rounded-lg shadow-2xl"
-              />
-              <p className="mt-4 text-xl text-white text-center max-w-md italic text-shadow-lg">
-                &ldquo;{giftCard.description}&rdquo;
-              </p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -180,7 +189,7 @@ const DailyChest: React.FC = () => {
         <button
           onClick={handleOpenChest}
           disabled={openCount >= 10 || isLoading}
-          className={`mt-8 px-8 py-4 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white rounded-full font-bold text-2xl shadow-lg transition duration-300 transform hover:scale-105 ${
+          className={`mt-4 sm:mt-8 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white rounded-full font-bold text-xl sm:text-2xl shadow-lg transition duration-300 transform hover:scale-105 ${
             openCount >= 10 ? 'opacity-50 cursor-not-allowed' : 'hover:from-yellow-500 hover:to-yellow-700'
           }`}
         >
@@ -197,13 +206,14 @@ const DailyChest: React.FC = () => {
           )}
         </button>
 
-        <div className="mt-6 text-2xl font-bold text-white text-shadow-lg">
+        <div className="mt-4 sm:mt-6 text-xl sm:text-2xl font-bold text-white text-shadow-lg text-center">
           <span className="text-yellow-300">✨</span> Magical Surprises Remaining: {10 - openCount} <span className="text-yellow-300">✨</span>
         </div>
       </div>
 
-      <div className="text-3xl font-bold text-white z-20 text-shadow-lg">
-        Total Coins: {coins} 🪙
+      <div className="mt-4 sm:mt-8 text-2xl sm:text-3xl font-bold text-white z-20 text-shadow-lg text-center">
+        <div>Total Coins: {coins} 🪙</div>
+        <div className="mt-2 text-xl sm:text-2xl">Gift Cards Collected: {collectedCards.length}</div>
       </div>
     </div>
   );
