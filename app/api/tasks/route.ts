@@ -2,43 +2,27 @@ import { NextResponse } from 'next/server';
 
 const tasks = [
   {
-    id: 1,
-    title: "Follow on TikTok",
-    description: "Follow our official TikTok account for exciting content!",
-    link: "https://www.tiktok.com/@youraccount",
-    reward: 500,
-    emoji: "📱"
-  },
-  {
-    id: 2,
+    id: 7,
     title: "Join Telegram Channel",
     description: "Join our Telegram channel for the latest updates!",
-    link: "https://t.me/yourchannel",
-    reward: 300,
+    link: "https://t.me/telemasgold",
+    reward: 1000,
     emoji: "📢"
   },
   {
-    id: 3,
-    title: "Follow on Instagram",
-    description: "Follow our Instagram for beautiful photos and stories!",
-    link: "https://www.instagram.com/youraccount",
-    reward: 400,
-    emoji: "📷"
-  },
-  {
-    id: 4,
+    id: 8,
     title: "Follow on Twitter",
     description: "Follow us on Twitter for quick updates and news!",
-    link: "https://twitter.com/youraccount",
-    reward: 350,
+    link: "https://twitter.com/telemas_ai_bot",
+    reward: 1500,
     emoji: "🐦"
   },
   {
-    id: 5,
+    id: 9,
     title: "Subscribe on YouTube",
     description: "Subscribe to our YouTube channel for exciting videos!",
-    link: "https://www.youtube.com/yourchannel",
-    reward: 600,
+    link: "https://www.youtube.com/@telemasgold",
+    reward: 1500,
     emoji: "🎥"
   }
 ];
