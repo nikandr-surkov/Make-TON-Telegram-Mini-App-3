@@ -8,7 +8,6 @@ interface ReferralSystemProps {
 }
 
 const ReferralSystem: React.FC<ReferralSystemProps> = ({ initData, userId, startParam }) => {
-  const [referrer, setReferrer] = useState<string | null>(null)
   const [referralCount, setReferralCount] = useState<number>(0)
   const INVITE_URL = "https://t.me/telemas_ai_bot/Farm"
 
@@ -28,25 +27,24 @@ const ReferralSystem: React.FC<ReferralSystemProps> = ({ initData, userId, start
       }
     }
 
-    const fetchReferralInfo = async () => {
+    const fetchReferralCount = async () => {
       if (userId) {
         try {
-          const response = await fetch(`/api/referrals?userId=${userId}`);
-          if (!response.ok) throw new Error('Failed to fetch referral info');
+          const response = await fetch(`/api/referrals/count?userId=${userId}`);
+          if (!response.ok) throw new Error('Failed to fetch referral count');
           const data = await response.json();
-          setReferrer(data.referrer);
           setReferralCount(data.referralCount);
         } catch (error) {
-          console.error('Error fetching referral info:', error);
+          console.error('Error fetching referral count:', error);
         }
       }
     }
 
     checkReferral();
-    fetchReferralInfo();
+    fetchReferralCount();
 
     // Set up an interval to periodically fetch the referral count
-    const intervalId = setInterval(fetchReferralInfo, 60000); // Fetch every minute
+    const intervalId = setInterval(fetchReferralCount, 60000); // Fetch every minute
 
     // Clean up the interval on component unmount
     return () => clearInterval(intervalId);
@@ -63,13 +61,12 @@ const ReferralSystem: React.FC<ReferralSystemProps> = ({ initData, userId, start
   const handleCopyLink = () => {
     const inviteLink = `${INVITE_URL}?startapp=${userId}`
     navigator.clipboard.writeText(inviteLink)
+      .then(() => alert('Invite link copied to clipboard!'))
+      .catch(err => console.error('Failed to copy: ', err));
   }
 
   return (
     <div className="w-full max-w-md">
-      {referrer && (
-        <p className="text-green-500 mb-4">You were referred by user {referrer}</p>
-      )}
       <div className="bg-red-100 rounded-lg p-4 mb-6">
         <p className="text-center text-red-800 font-semibold">
           Your Invited Friends: <span className="text-2xl">{referralCount}</span>
