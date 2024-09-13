@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react'
-import { initUtils } from '@telegram-apps/sdk'
+import { WebApp } from '@twa-dev/sdk'
 
 interface ReferralSystemProps {
   initData: string
@@ -12,6 +12,7 @@ interface ReferralSystemProps {
 const Friends: React.FC<ReferralSystemProps> = ({ initData, userId, startParam }) => {
   const [referrals, setReferrals] = useState<string[]>([])
   const [referrer, setReferrer] = useState<string | null>(null)
+  const [referralCount, setReferralCount] = useState<number>(0)
   const INVITE_URL = "https://t.me/telemas_ai_bot/Farm"
 
   useEffect(() => {
@@ -33,11 +34,14 @@ const Friends: React.FC<ReferralSystemProps> = ({ initData, userId, startParam }
     const fetchReferrals = async () => {
       if (userId) {
         try {
-          const response = await fetch(`/api/referrals?userId=${userId}`);
+          const response = await fetch(`/api/user?telegram_id=${userId}`);
           if (!response.ok) throw new Error('Failed to fetch referrals');
           const data = await response.json();
-          setReferrals(data.referrals);
-          setReferrer(data.referrer);
+          if (data.success) {
+            setReferralCount(parseInt(data.referralCount, 10));
+          } else {
+            console.error('Failed to fetch referral count:', data.error);
+          }
         } catch (error) {
           console.error('Error fetching referrals:', error);
         }
@@ -49,23 +53,41 @@ const Friends: React.FC<ReferralSystemProps> = ({ initData, userId, startParam }
   }, [userId, startParam])
 
   const handleInviteFriend = () => {
-    const utils = initUtils()
     const inviteLink = `${INVITE_URL}?startapp=${userId}`
     const shareText = `Join me accumulate coins for the first christmas airdop bot on Telegram.`
     const fullUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`
-    utils.openTelegramLink(fullUrl)
+    WebApp.openTelegramLink(fullUrl)
   }
 
   const handleCopyLink = () => {
     const inviteLink = `${INVITE_URL}?startapp=${userId}`
     navigator.clipboard.writeText(inviteLink)
+      .then(() => {
+        WebApp.showAlert("Invite link copied to clipboard!")
+      })
+      .catch(err => {
+        console.error('Failed to copy: ', err);
+        WebApp.showAlert("Failed to copy invite link. Please try again.")
+      });
   }
 
   return (
-    <div className="w-full max-w-md">
-      {referrer && (
-        <p className="text-green-500 mb-4">You were referred by user {referrer}</p>
-      )}
+    <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg shadow-lg p-6 m-4 text-white">
+      <h2 className="text-2xl font-bold mb-4 text-center">Friends</h2>
+      <div className="flex justify-center items-center space-x-4 mb-6">
+        <div className="bg-white p-2 rounded-full">
+          <img
+            src="/friends.png"
+            alt="Friends Icon"
+            className="w-10 h-10 rounded-full"
+          />
+        </div>
+        <div className="text-center">
+          <p className="text-3xl font-semibold">{referralCount}</p>
+          <p className="text-sm">Total Friends</p>
+        </div>
+      </div>
+      
       <div className="flex flex-col space-y-4">
         <button
           onClick={handleInviteFriend}
@@ -80,18 +102,6 @@ const Friends: React.FC<ReferralSystemProps> = ({ initData, userId, startParam }
           Copy Invite Link
         </button>
       </div>
-      {referrals.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-2xl font-bold mb-4">Your Referrals</h2>
-          <ul>
-            {referrals.map((referral, index) => (
-              <li key={index} className="bg-gray-100 p-2 mb-2 rounded">
-                User {referral}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   )
 }
