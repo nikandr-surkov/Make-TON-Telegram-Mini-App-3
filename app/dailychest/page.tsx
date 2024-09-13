@@ -12,7 +12,7 @@ const StarBurst: React.FC<StarBurstProps> = ({ isVisible }) => {
   if (!isVisible) return null;
 
   return (
-    <div className="absolute inset-0 pointer-events-none">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {[...Array(20)].map((_, i) => (
         <div
           key={i}
@@ -48,33 +48,35 @@ const GiftCardModal: React.FC<{ isOpen: boolean; onClose: () => void; collectedC
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
     >
       <motion.div
         initial={{ scale: 0.9, y: 20 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.9, y: 20 }}
-        className="bg-white rounded-lg p-6 max-w-md w-full m-4"
+        className="bg-white rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-2xl font-bold mb-4 text-center text-red-700">Your Festive Collection</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-2">
           {giftCards.map((card) => (
-            <div key={card.id} className="flex flex-col items-center bg-green-100 p-3 rounded-lg">
+            <div key={card.id} className="flex flex-col items-center bg-green-100 p-2 rounded-lg">
               <Image
                 src={`/giftcards/${card.id}.jpg`}
                 alt={card.name}
-                width={100}
-                height={100}
+                width={60}
+                height={60}
                 className="rounded-lg shadow-md"
               />
-              <p className="mt-2 text-sm font-semibold text-green-800">{card.name}</p>
-              <p className="text-xl font-bold text-red-600">{collectedCards[card.id] || 0}</p>
+              <p className="mt-1 text-xs font-semibold text-green-800 text-center">{card.name}</p>
+              <p className="text-lg font-bold text-red-600">{collectedCards[card.id] || 0}</p>
             </div>
           ))}
         </div>
         <button
           onClick={onClose}
-          className="mt-6 w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-300"
+          className="mt-4 w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-300"
         >
           Close
         </button>
