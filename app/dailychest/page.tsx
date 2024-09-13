@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
 interface StarBurstProps {
   isVisible: boolean;
@@ -119,10 +120,12 @@ const DailyChest: React.FC = () => {
           animate={chestOpened ? { scale: 1.1, rotate: 360 } : { scale: 1, rotate: 0 }}
           transition={{ duration: 1, type: 'spring', stiffness: 100 }}
         >
-          <img
+          <Image
             src={chestOpened ? "/open-chest.png" : "/closed-chest.png"}
             alt="Mystery Box"
-            className="w-80 h-80 object-contain filter drop-shadow-2xl"
+            width={320}
+            height={320}
+            className="object-contain filter drop-shadow-2xl"
           />
           <AnimatePresence>
             {chestOpened && !giftCard && (
@@ -160,13 +163,15 @@ const DailyChest: React.FC = () => {
               transition={{ duration: 1, type: 'spring', stiffness: 100 }}
               className="mt-4 flex flex-col items-center"
             >
-              <img
+              <Image
                 src={`/giftcards/${giftCard.id}.jpg`}
                 alt="Gift Card"
-                className="w-64 h-64 object-cover rounded-lg shadow-2xl"
+                width={256}
+                height={256}
+                className="object-cover rounded-lg shadow-2xl"
               />
               <p className="mt-4 text-xl text-white text-center max-w-md italic text-shadow-lg">
-                "{giftCard.description}"
+                &ldquo;{giftCard.description}&rdquo;
               </p>
             </motion.div>
           )}
@@ -188,7 +193,7 @@ const DailyChest: React.FC = () => {
               Unwrapping Magic...
             </span>
           ) : (
-            'Open Enchanted Box'
+            'Open Mystery Box'
           )}
         </button>
 
