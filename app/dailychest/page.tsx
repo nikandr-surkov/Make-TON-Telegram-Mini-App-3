@@ -32,13 +32,56 @@ const StarBurst: React.FC<StarBurstProps> = ({ isVisible }) => {
 };
 
 const giftCards = [
-  { id: 1, description: "May Santa bring joy and light with a tree full of Christmas magic!" },
-  { id: 2, description: "Unwrap the holiday cheer as snowflakes and presents brighten your heart!" },
-  { id: 3, description: "Let Santa fill your world with gifts, warmth, and endless joy this season!" },
-  { id: 4, description: "Embrace the holiday spirit with a snowman, bringing frosty fun and smiles!" },
-  { id: 5, description: "Stockings full of love and festive surprises await to make your Christmas bright!" },
-  { id: 6, description: "Ring the bells of joy and unwrap the wonders of Christmas with festive delight!" }
+  { id: 1, name: "Santa's Magic", description: "May Santa bring joy and light with a tree full of Christmas magic!" },
+  { id: 2, name: "Snowflake Joy", description: "Unwrap the holiday cheer as snowflakes and presents brighten your heart!" },
+  { id: 3, name: "Santa's Bounty", description: "Let Santa fill your world with gifts, warmth, and endless joy this season!" },
+  { id: 4, name: "Frosty's Cheer", description: "Embrace the holiday spirit with a snowman, bringing frosty fun and smiles!" },
+  { id: 5, name: "Stocking Wonder", description: "Stockings full of love and festive surprises await to make your Christmas bright!" },
+  { id: 6, name: "Jingle Delight", description: "Ring the bells of joy and unwrap the wonders of Christmas with festive delight!" }
 ];
+
+const GiftCardModal: React.FC<{ isOpen: boolean; onClose: () => void; collectedCards: Record<number, number> }> = ({ isOpen, onClose, collectedCards }) => {
+  if (!isOpen) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <motion.div
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.9, y: 20 }}
+        className="bg-white rounded-lg p-6 max-w-md w-full m-4"
+      >
+        <h2 className="text-2xl font-bold mb-4 text-center text-red-700">Your Festive Collection</h2>
+        <div className="grid grid-cols-2 gap-4">
+          {giftCards.map((card) => (
+            <div key={card.id} className="flex flex-col items-center bg-green-100 p-3 rounded-lg">
+              <Image
+                src={`/giftcards/${card.id}.jpg`}
+                alt={card.name}
+                width={100}
+                height={100}
+                className="rounded-lg shadow-md"
+              />
+              <p className="mt-2 text-sm font-semibold text-green-800">{card.name}</p>
+              <p className="text-xl font-bold text-red-600">{collectedCards[card.id] || 0}</p>
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={onClose}
+          className="mt-6 w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-300"
+        >
+          Close
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+};
 
 const DailyChest: React.FC = () => {
   const [coins, setCoins] = useState<number>(0);
@@ -47,8 +90,9 @@ const DailyChest: React.FC = () => {
   const [newCoins, setNewCoins] = useState<number>(0);
   const [openCount, setOpenCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [giftCard, setGiftCard] = useState<{ id: number, description: string } | null>(null);
-  const [collectedCards, setCollectedCards] = useState<number[]>([]);
+  const [giftCard, setGiftCard] = useState<{ id: number, name: string, description: string } | null>(null);
+  const [collectedCards, setCollectedCards] = useState<Record<number, number>>({});
+  const [isGiftCardModalOpen, setIsGiftCardModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const storedCoins = localStorage.getItem('coins');
@@ -78,7 +122,10 @@ const DailyChest: React.FC = () => {
         const randomGiftCard = giftCards[Math.floor(Math.random() * giftCards.length)];
         setGiftCard(randomGiftCard);
         setNewCoins(0);
-        const updatedCollectedCards = [...collectedCards, randomGiftCard.id];
+        const updatedCollectedCards = {
+          ...collectedCards,
+          [randomGiftCard.id]: (collectedCards[randomGiftCard.id] || 0) + 1
+        };
         setCollectedCards(updatedCollectedCards);
         localStorage.setItem('collectedCards', JSON.stringify(updatedCollectedCards));
       } else {
@@ -111,13 +158,37 @@ const DailyChest: React.FC = () => {
       }, 5000);
     }, 3000); // 3 second delay for dramatic effect
   };
-localStorage.setItem('openCount', '0');
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-700 to-green-700 flex flex-col items-center justify-between p-4 sm:p-8 relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('/snowflakes.png')] opacity-30 animate-fall"></div>
       
       <div className="flex flex-col items-center z-20 w-full max-w-md">
+        <div className="w-full flex justify-between items-start mb-4">
+          <div className="text-2xl font-bold text-white text-shadow-lg">
+            🪙 {coins}
+          </div>
+          <button
+            onClick={() => setIsGiftCardModalOpen(true)}
+            className="relative w-16 h-16 transition-transform duration-300 hover:scale-110"
+          >
+            {[2, 1, 0].map((index) => (
+              <div
+                key={index}
+                className="absolute w-12 h-12 bg-white rounded-lg shadow-md"
+                style={{
+                  top: `${index * 4}px`,
+                  left: `${index * 4}px`,
+                  zIndex: 3 - index,
+                  backgroundImage: `url(/giftcards/${(index % 6) + 1}.jpg)`,
+                  backgroundSize: 'cover',
+                  transform: `rotate(${index * 5}deg)`,
+                }}
+              />
+            ))}
+          </button>
+        </div>
+
         <h1 className="text-3xl sm:text-5xl font-bold text-white mb-4 sm:mb-8 text-center text-shadow-lg">
           🎄 Mystery Box 🎁
         </h1>
@@ -138,7 +209,10 @@ localStorage.setItem('openCount', '0');
                 height={200}
                 className="object-cover rounded-lg shadow-2xl"
               />
-              <p className="mt-2 text-sm sm:text-base text-white text-center max-w-md italic text-shadow-lg">
+              <p className="mt-2 text-lg font-bold text-yellow-300 text-center text-shadow-lg">
+                {giftCard.name}
+              </p>
+              <p className="mt-1 text-sm sm:text-base text-white text-center max-w-md italic text-shadow-lg">
                 &ldquo;{giftCard.description}&rdquo;
               </p>
             </motion.div>
@@ -212,10 +286,15 @@ localStorage.setItem('openCount', '0');
         </div>
       </div>
 
-      <div className="mt-4 sm:mt-8 text-2xl sm:text-3xl font-bold text-white z-20 text-shadow-lg text-center">
-        <div>Total Coins: {coins} 🪙</div>
-        <div className="mt-2 text-xl sm:text-2xl">Gift Cards Collected: {collectedCards.length}</div>
-      </div>
+      <AnimatePresence>
+        {isGiftCardModalOpen && (
+          <GiftCardModal
+            isOpen={isGiftCardModalOpen}
+            onClose={() => setIsGiftCardModalOpen(false)}
+            collectedCards={collectedCards}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
