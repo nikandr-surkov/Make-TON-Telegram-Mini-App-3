@@ -12,7 +12,7 @@ const StarBurst: React.FC<StarBurstProps> = ({ isVisible }) => {
   if (!isVisible) return null;
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div className="absolute inset-0 pointer-events-none">
       {[...Array(20)].map((_, i) => (
         <div
           key={i}
