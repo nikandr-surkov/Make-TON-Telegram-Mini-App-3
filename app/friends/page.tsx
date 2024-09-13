@@ -1,67 +1,62 @@
-'use client';
+'use client'
 
-import React, { useEffect, useState } from 'react';
-import ReferralSystem from '@/components/ReferralSystem';
-import { Trees, Users, Gift } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 
-export default function Friends() {
-  const [initData, setInitData] = useState('');
-  const [userId, setUserId] = useState('');
-  const [startParam, setStartParam] = useState('');
-  const [referralCount, setReferralCount] = useState(0);
+const Friends: React.FC = () => {
+  const [referralCount, setReferralCount] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const initWebApp = async () => {
-      if (typeof window !== 'undefined') {
-        const WebApp = (await import('@twa-dev/sdk')).default;
-        WebApp.ready();
-        setInitData(WebApp.initData);
-        const userTelegramId = WebApp.initDataUnsafe.user?.id.toString() || '';
-        setUserId(userTelegramId);
-        setStartParam(WebApp.initDataUnsafe.start_param || '');
+    const fetchReferralCount = async () => {
+      setIsLoading(true);
+      try {
+        // Replace '123456789' with the actual way you're getting the user's Telegram ID
+        const telegramId = '123456789';
+        const response = await fetch(`/api/user?telegram_id=${telegramId}`);
+        const data = await response.json();
 
-        // Fetch referral count
-        if (userTelegramId) {
-          try {
-            const response = await fetch(`/api/user?telegram_id=${userTelegramId}`);
-            const data = await response.json();
-            if (data.success) {
-              setReferralCount(parseInt(data.referralCount, 10));
-            } else {
-              console.error('Failed to fetch referral count:', data.error);
-            }
-          } catch (error) {
-            console.error('Error fetching referral count:', error);
-          }
+        if (data.success) {
+          setReferralCount(parseInt(data.referralCount));
+        } else {
+          setError(data.error || 'Failed to fetch referral count');
         }
+      } catch (err) {
+        setError('An error occurred while fetching data');
+      } finally {
+        setIsLoading(false);
       }
     };
-    initWebApp();
+
+    fetchReferralCount();
   }, []);
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-8 bg-gradient-to-b from-red-700 to-green-800">
-      <div className="bg-white bg-opacity-90 rounded-lg p-8 shadow-xl max-w-md w-full">
-        <h1 className="text-4xl font-bold mb-8 text-center text-red-700 flex items-center justify-center">
-          <Users className="mr-2" />
-          Christmas Friends
-        </h1>
-        <p className="text-center mb-6 text-green-800">Spread the holiday cheer! Invite your friends and earn rewards.</p>
-        
-        <div className="bg-red-100 rounded-lg p-4 mb-6">
-          <p className="text-center text-red-800 font-semibold">
-            Your Invited Friends: <span className="text-2xl">{referralCount}</span>
-          </p>
-        </div>
-
-        <ReferralSystem initData={initData} userId={userId} startParam={startParam} />
-        
-        <div className="mt-8 flex justify-center items-center space-x-4">
-          <Gift className="text-red-700" size={24} />
-          <p className="text-green-800 font-medium">Invite more friends to earn rewards!</p>
-          <Trees className="text-green-800" size={24} />
+    <div className="bg-white rounded-lg shadow-md p-6 m-4">
+      <h2 className="text-2xl font-bold mb-4 text-center">Friends</h2>
+      <div className="flex justify-center items-center space-x-4">
+        <Image
+          src="/friends-icon.png"
+          alt="Friends Icon"
+          width={50}
+          height={50}
+          className="rounded-full"
+        />
+        <div className="text-center">
+          {isLoading ? (
+            <p>Loading...</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : (
+            <p className="text-xl font-semibold">
+              {referralCount !== null ? referralCount : 0} Friends
+            </p>
+          )}
         </div>
       </div>
-    </main>
+    </div>
   );
-}
+};
+
+export default Friends;
