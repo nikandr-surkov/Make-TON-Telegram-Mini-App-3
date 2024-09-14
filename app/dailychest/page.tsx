@@ -108,16 +108,7 @@ const DailyChest: React.FC = () => {
   // Assume you have implemented this hook
   const showAd = useAdsgram({ blockId: '3072', onReward: () => {}, onError: () => {} });
 
-  useEffect(() => {
-    const storedCoins = localStorage.getItem('coins');
-    const storedOpenCount = localStorage.getItem('openCount');
-    const storedCards = localStorage.getItem('collectedCards');
-    if (storedCoins) setCoins(parseInt(storedCoins));
-    if (storedOpenCount) setOpenCount(parseInt(storedOpenCount));
-    if (storedCards) setCollectedCards(JSON.parse(storedCards));
-  }, []);
-
-  const searchParams = useSearchParams();
+const searchParams = useSearchParams();
 
   useEffect(() => {
     const initializeUser = async () => {
@@ -179,6 +170,15 @@ const DailyChest: React.FC = () => {
     initializeUser();
   }, [searchParams]); // Add searchParams as a dependency
 
+    
+  useEffect(() => {
+    const storedCoins = localStorage.getItem('coins');
+    const storedOpenCount = localStorage.getItem('openCount');
+    const storedCards = localStorage.getItem('collectedCards');
+    if (storedCoins) setCoins(parseInt(storedCoins));
+    if (storedOpenCount) setOpenCount(parseInt(storedOpenCount));
+    if (storedCards) setCollectedCards(JSON.parse(storedCards));
+  }, []);
 
   const playAudio = (filename: string) => {
     const audio = new Audio(filename);
