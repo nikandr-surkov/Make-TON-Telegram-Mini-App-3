@@ -14,10 +14,21 @@ const showAd = async (): Promise<boolean> => {
     return false; // In case of failure
   }
 };
+type GiftCard = {
+  id: number;
+  name: string;
+  description: string;
+};
 
 const giftCards = [
-  // Your defined gift cards here
+  { id: 1, name: "Santa's Magic", description: "May Santa bring joy and light with a tree full of Christmas magic!" },
+  { id: 2, name: "Snowflake Joy", description: "Unwrap the holiday cheer as snowflakes and presents brighten your heart!" },
+  { id: 3, name: "Santa's Bounty", description: "Let Santa fill your world with gifts, warmth, and endless joy this season!" },
+  { id: 4, name: "Frosty's Cheer", description: "Embrace the holiday spirit with a snowman, bringing frosty fun and smiles!" },
+  { id: 5, name: "Stocking Wonder", description: "Stockings full of love and festive surprises await to make your Christmas bright!" },
+  { id: 6, name: "Jingle Delight", description: "Ring the bells of joy and unwrap the wonders of Christmas with festive delight!" }
 ];
+
 
 // Component for displaying collected gift cards
 const GiftCardModal: React.FC<{ isOpen: boolean; onClose: () => void; collectedCards: Record<number, number> }> = ({ isOpen, onClose, collectedCards }) => {
