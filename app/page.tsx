@@ -239,15 +239,15 @@ export default function Home() {
     console.error('Ad error:', result);
   }, []);
 
-  const showAd = useAdsgram({
-    blockId: "your-block-id", // Replace with your actual block ID
-    onReward,
-    onError
-  });
+  // const showAd = useAdsgram({
+  //   blockId: "your-block-id", // Replace with your actual block ID
+  //   onReward,
+  //   onError
+  // });
 
-  const handleWatchAd = useCallback(async () => {
-    await showAd();
-  }, [showAd]);
+  // const handleWatchAd = useCallback(async () => {
+  //   await showAd();
+  // }, [showAd]);
 
   if (isLoading) {
     return (
