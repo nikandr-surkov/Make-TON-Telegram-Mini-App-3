@@ -239,15 +239,15 @@ export default function Home() {
     console.error('Ad error:', result);
   }, []);
 
-  // const showAd = useAdsgram({
-  //   blockId: "your-block-id", // Replace with your actual block ID
-  //   onReward,
-  //   onError
-  // });
+  const showAd = useAdsgram({
+    blockId: "your-block-id", // Replace with your actual block ID
+    onReward,
+    onError
+  });
 
-  // const handleWatchAd = useCallback(async () => {
-  //   await showAd();
-  // }, [showAd]);
+  const handleWatchAd = useCallback(async () => {
+    await showAd();
+  }, [showAd]);
 
   if (isLoading) {
     return (
@@ -266,6 +266,16 @@ export default function Home() {
       {/* Decorative Elements */}
       <div className="absolute inset-0 pointer-events-none">
         {backgroundEmojis}
+      </div>
+
+      {/* Ad Watch Button */}
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+        <button 
+          onClick={handleWatchAd}
+          className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
+        >
+          Watch Ad
+        </button>
       </div>
 
       {/* Coin Counter */}
