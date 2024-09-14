@@ -61,7 +61,7 @@ const GiftCardModal: React.FC<{ isOpen: boolean; onClose: () => void; collectedC
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-2xl font-bold mb-4 text-center text-red-700">Your Festive Collection</h2>
-        <p className="text-center text-sm mb-4 italic">Your cards are as valuable as your coins!</p>
+        <p className="text-center text-sm mb-4 italic">Your cards are as valuable as your coins!<br>You can only buy one card at a time and watch up to only 20 ads</p>
         <div className="grid grid-cols-3 gap-2">
           {giftCards.map((card) => (
             <div key={card.id} className="flex flex-col items-center bg-green-100 p-2 rounded-lg">
@@ -173,13 +173,37 @@ const DailyChest: React.FC = () => {
     }, 3000); // 3 second delay for dramatic effect
   };
 
-  const handleBuyCard = async (cardId: number) => {
-    const card = giftCards.find(c => c.id === cardId);
-    if (!card) return;
+const handleBuyCard = async (cardId: number) => {
+  const card = giftCards.find(c => c.id === cardId);
+  if (!card) return;
 
-    for (let i = 0; i < card.price; i++) {
+  let adWatchedCount = 0;
+  for (let i = 0; i < card.price; i++) {
+    try {
       await showAd();
+      adWatchedCount++;
+    } catch (error) {
+      console.error('Failed to show ad:', error);
+      // Optionally show an error message to the user
+      break;
     }
+  }
+
+  if (adWatchedCount === card.price) {
+    const updatedCollectedCards = {
+      ...collectedCards,
+      [cardId]: (collectedCards[cardId] || 0) + 1
+    };
+    setCollectedCards(updatedCollectedCards);
+    localStorage.setItem('collectedCards', JSON.stringify(updatedCollectedCards));
+    playAudio('/goodresult.mp3');
+    // Optionally show a success message to the user
+  } else {
+    // Inform the user that the purchase was not completed due to incomplete ad views
+    console.log(`Purchase incomplete. Watched ${adWatchedCount} out of ${card.price} ads.`);
+    // Optionally show a message to the user
+  }
+};
 
     const updatedCollectedCards = {
       ...collectedCards,
