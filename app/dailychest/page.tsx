@@ -117,6 +117,69 @@ const DailyChest: React.FC = () => {
     if (storedCards) setCollectedCards(JSON.parse(storedCards));
   }, []);
 
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const initializeUser = async () => {
+      // Check if telegram_id is already stored in local storage
+      const storedTelegramId = localStorage.getItem('telegram_id');
+      if (storedTelegramId) {
+        console.log('User already registered');
+        return;
+      }
+
+      // Get Telegram WebApp data
+      const tg = window.Telegram?.WebApp;
+      if (!tg) {
+        console.error('Telegram WebApp is not available');
+        return;
+      }
+
+      const telegram_id = tg.initDataUnsafe?.user?.id;
+      const telegram_username = tg.initDataUnsafe?.user?.username;
+
+      if (!telegram_id || !telegram_username) {
+        console.error('Unable to get Telegram user data');
+        return;
+      }
+
+      // Get referrer_id from URL if available
+      const referrer_id = searchParams.get('startapp') || null;
+
+      // Prepare the data to be sent
+      const userData = {
+        telegram_id,
+        telegram_username,
+        referrer_id,
+        coin_balance: 0 // Initialize with 0 or any default value
+      };
+
+      try {
+        // Send POST request to your API route
+        const response = await fetch('/api/user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData),
+        });
+
+        if (response.ok) {
+          // If successful, store telegram_id in local storage
+          localStorage.setItem('telegram_id', telegram_id);
+          console.log('User registered successfully');
+        } else {
+          console.error('Failed to register user');
+        }
+      } catch (error) {
+        console.error('Error registering user:', error);
+      }
+    };
+
+    initializeUser();
+  }, [searchParams]); // Add searchParams as a dependency
+
+
   const playAudio = (filename: string) => {
     const audio = new Audio(filename);
     audio.play().catch(error => console.error('Audio playback failed', error));
