@@ -130,7 +130,7 @@ const DailyChest: React.FC = () => {
 
   // Function to generate random ad trigger points (between 3rd and 8th)
   const generateRandomAdTriggers = () => {
-    const triggers = [];
+    const triggers: number[] = []; // Explicitly define the type as an array of numbers
     while (triggers.length < 5) {
       const randomAttempt = Math.floor(Math.random() * 6) + 3; // Generate number between 3 and 8
       if (!triggers.includes(randomAttempt)) {
