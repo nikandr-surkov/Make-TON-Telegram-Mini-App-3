@@ -1,8 +1,6 @@
 'use client';
-
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Gift } from 'lucide-react';
-import { useAdsgram } from '../hooks/useAdsgram';
 
 const SNOWFLAKE_COUNT = 30;
 const SNOWFLAKE_SIZES = ['text-3xl', 'text-4xl', 'text-5xl', 'text-6xl'];
@@ -230,78 +228,30 @@ export default function Home() {
       </div>
     )), []);
 
-  // Adsgram integration
-  const onReward = useCallback(() => {
-    setCoins(prevCoins => prevCoins + 50); // Reward 50 coins for watching an ad
-  }, []);
-
-  const onError = useCallback((result: any) => {
-    console.error('Ad error:', result);
-  }, []);
-
-  const showAd = useAdsgram({
-    blockId: "your-block-id", // Replace with your actual block ID
-    onReward,
-    onError
-  });
-
-  const handleWatchAd = useCallback(async () => {
-    await showAd();
-  }, [showAd]);
-
   if (isLoading) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-green-900">
-        <div className="text-white text-2xl">Loading game assets...</div>
-      </div>
-    );
+    return <div className="text-white">Loading...</div>;
   }
 
   return (
-    <div className="h-screen bg-gradient-to-b from-green-900 to-green-600 relative overflow-hidden">
-      {/* Impressive Background */}
-      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/winter_landscape.jpg')" }} />
-      <div className="absolute inset-0 bg-green-900 bg-opacity-50" />
-
-      {/* Decorative Elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        {backgroundEmojis}
-      </div>
-
-      {/* Ad Watch Button */}
-      <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
-        <button 
-          onClick={handleWatchAd}
-          className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
-        >
-          Watch Ad
-        </button>
-      </div>
-
-      {/* Coin Counter */}
-      <div className="absolute top-4 left-4 bg-red-900 rounded-full px-4 py-2 text-2xl font-bold text-white shadow-lg">
-        <span className="text-yellow-400">🪙</span> {coins}
-      </div>
-
-      {/* Snowflakes Tapped Counter */}
-      <div className="absolute top-4 right-4 bg-blue-400 rounded-full px-4 py-2 text-2xl font-bold text-white shadow-lg">
-        ❄️ {snowflakesTapped}
-      </div>
-
-      {/* Snowflakes */}
-      {snowflakes.map((sf) => (
-        <SnowflakeElement key={sf.id} id={sf.id} x={sf.x} y={sf.y} size={sf.size} onClick={handleSnowflakeTap} />
+    <div className="relative w-full h-full overflow-hidden bg-gradient-to-b from-blue-900 to-cyan-600">
+      {backgroundEmojis}
+      {snowflakes.map((snowflake) => (
+        <SnowflakeElement
+          key={snowflake.id}
+          id={snowflake.id}
+          x={snowflake.x}
+          y={snowflake.y}
+          size={snowflake.size}
+          onClick={handleSnowflakeTap}
+        />
       ))}
-
-      {/* Burst Effects */}
       {burstEffects.map(burst => (
         <BurstEffect key={burst.id} x={burst.x} y={burst.y} />
       ))}
-
-      {/* Coin Box */}
-      {showCoinBox && (
-        <CoinBox amount={coinAmount} onComplete={handleCoinBoxComplete} />
-      )}
+      {showCoinBox && <CoinBox amount={coinAmount} onComplete={handleCoinBoxComplete} />}
+      <div className="absolute top-2 right-2 text-white text-lg">
+        Coins: {coins}
+      </div>
     </div>
   );
 }
