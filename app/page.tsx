@@ -268,14 +268,7 @@ export default function Home() {
         {backgroundEmojis}
       </div>
 
-      {/* Ad Watch Button */}
-      <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
-        <button 
-          onClick={handleWatchAd}
-          className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
-        >
-          Watch Ad
-        </button>
+
       </div>
 
       {/* Coin Counter */}
