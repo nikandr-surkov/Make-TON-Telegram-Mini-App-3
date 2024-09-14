@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Gift } from 'lucide-react';
 
@@ -74,7 +75,6 @@ export default function Home() {
   const [burstEffects, setBurstEffects] = useState<{id: number; x: number; y: number}[]>([]);
   const [telegramId, setTelegramId] = useState('');
   const [telegramUsername, setTelegramUsername] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
 
   // Audio context and sources
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -109,8 +109,6 @@ export default function Home() {
       // Store other buffers for later use
       tapMusicBufferRef.current = tapBuffer;
       comboMusicBufferRef.current = comboBuffer;
-
-      setIsLoading(false); // Set loading to false once music is loaded
     };
 
     initAudio();
@@ -228,30 +226,41 @@ export default function Home() {
       </div>
     )), []);
 
-  if (isLoading) {
-    return <div className="text-white">Loading...</div>;
-  }
-
   return (
-    <div className="relative w-full h-full overflow-hidden bg-gradient-to-b from-blue-900 to-cyan-600">
-      {backgroundEmojis}
-      {snowflakes.map((snowflake) => (
-        <SnowflakeElement
-          key={snowflake.id}
-          id={snowflake.id}
-          x={snowflake.x}
-          y={snowflake.y}
-          size={snowflake.size}
-          onClick={handleSnowflakeTap}
-        />
+    <div className="h-screen bg-gradient-to-b from-green-900 to-green-600 relative overflow-hidden">
+      {/* Impressive Background */}
+      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/winter_landscape.jpg')" }} />
+      <div className="absolute inset-0 bg-green-900 bg-opacity-50" /> {/* Overlay to maintain green tint */}
+
+      {/* Decorative Elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        {backgroundEmojis}
+      </div>
+
+      {/* Coin Counter */}
+      <div className="absolute top-4 left-4 bg-red-900 rounded-full px-4 py-2 text-2xl font-bold text-white shadow-lg">
+        <span className="text-yellow-400">🪙</span> {coins}
+      </div>
+
+      {/* Snowflakes Tapped Counter */}
+      <div className="absolute top-4 right-4 bg-blue-400 rounded-full px-4 py-2 text-2xl font-bold text-white shadow-lg">
+        ❄️ {snowflakesTapped}
+      </div>
+
+      {/* Snowflakes */}
+      {snowflakes.map((sf) => (
+        <SnowflakeElement key={sf.id} id={sf.id} x={sf.x} y={sf.y} size={sf.size} onClick={handleSnowflakeTap} />
       ))}
+
+      {/* Burst Effects */}
       {burstEffects.map(burst => (
         <BurstEffect key={burst.id} x={burst.x} y={burst.y} />
       ))}
-      {showCoinBox && <CoinBox amount={coinAmount} onComplete={handleCoinBoxComplete} />}
-      <div className="absolute top-2 right-2 text-white text-lg">
-        Coins: {coins}
-      </div>
+
+      {/* Coin Box */}
+      {showCoinBox && (
+        <CoinBox amount={coinAmount} onComplete={handleCoinBoxComplete} />
+      )}
     </div>
   );
 }
