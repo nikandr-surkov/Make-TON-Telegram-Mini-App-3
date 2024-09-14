@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { useAdsgram } from '../hooks/useAdsgram'; // Assume you have this hook implemented
+import { useAdsgram } from '../../hooks/useAdsgram'; // Assume you have this hook implemented
 import { ShoppingCart } from 'lucide-react';
 
 interface StarBurstProps {
@@ -106,7 +106,7 @@ const DailyChest: React.FC = () => {
   const [isGiftCardModalOpen, setIsGiftCardModalOpen] = useState<boolean>(false);
 
   // Assume you have implemented this hook
-  const showAd = useAdsgram({ blockId: 'your-block-id', onReward: () => {}, onError: () => {} });
+  const showAd = useAdsgram({ blockId: '3072', onReward: () => {}, onError: () => {} });
 
   useEffect(() => {
     const storedCoins = localStorage.getItem('coins');
