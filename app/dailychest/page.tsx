@@ -234,7 +234,6 @@ const handleBuyCard = async (cardId: number) => {
 
       const newUpgradesRemaining = upgradesRemaining - 1;
       setUpgradesRemaining(newUpgradesRemaining);
-      await new Promise(resolve => setTimeout(resolve, 3000));
       localStorage.setItem('upgradesRemaining', newUpgradesRemaining.toString());
 
       playAudio('/goodresult.mp3');
@@ -243,6 +242,7 @@ const handleBuyCard = async (cardId: number) => {
       console.log('Not all ads were watched or some ads failed. Cards were not updated.');
     }
   };
+  
     
   const onBuy = (cardId: number) => {
     if (upgradesRemaining <= 0) {
