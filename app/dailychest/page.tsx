@@ -107,7 +107,7 @@ const DailyChest: React.FC = () => {
   const [collectedCards, setCollectedCards] = useState<Record<number, number>>({});
   const [isGiftCardModalOpen, setIsGiftCardModalOpen] = useState<boolean>(false);
 
-  const [upgradesRemaining, setUpgradesRemaining] = useState<number>(15);
+  const [upgradesRemaining, setUpgradesRemaining] = useState<number>(35);
   const [lastResetDate, setLastResetDate] = useState<string>('');
 
 
