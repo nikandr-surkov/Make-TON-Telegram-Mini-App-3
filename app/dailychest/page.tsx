@@ -1,37 +1,21 @@
-'use client'
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { useAdsgram } from '../../hooks/useAdsgram'; // Assume you have this hook implemented
 import { ShoppingCart } from 'lucide-react';
+import type { AdController } from '../../types/adsgram';
 
-interface StarBurstProps {
-  isVisible: boolean;
+interface WebApp {
+  initDataUnsafe: {
+    user?: {
+      id: number;
+    };
+  };
 }
 
-const StarBurst: React.FC<StarBurstProps> = ({ isVisible }) => {
-  if (!isVisible) return null;
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {[...Array(20)].map((_, i) => (
-        <div
-          key={i}
-          className="absolute text-4xl animate-burst"
-          style={{
-            left: '50%',
-            top: '50%',
-            animation: `burst 1s ease-out forwards ${Math.random() * 0.5}s`,
-            transform: `rotate(${i * 18}deg) translateY(-100px)`,
-          }}
-        >
-          ⭐
-        </div>
-      ))}
-    </div>
-  );
-};
+interface DailyChestProps {
+  adController: AdController | null;
+  webApp: WebApp | null;
+}
 
 const giftCards = [
   { id: 1, name: "Santa's Magic", description: "May Santa bring joy and light with a tree full of Christmas magic!", price: 1 },
@@ -42,59 +26,7 @@ const giftCards = [
   { id: 6, name: "Jingle Delight", description: "Ring the bells of joy and unwrap the wonders of Christmas with festive delight!", price: 2 }
 ];
 
-const GiftCardModal: React.FC<{ isOpen: boolean; onClose: () => void; collectedCards: Record<number, number>; onBuy: (cardId: number) => void }> = ({ isOpen, onClose, collectedCards, onBuy }) => {
-  if (!isOpen) return null;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ scale: 0.9, y: 20 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.9, y: 20 }}
-        className="bg-white rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className="text-2xl font-bold mb-4 text-center text-red-700">Your Festive Collection</h2>
-        <p className="text-center text-sm mb-4 italic">Your cards are as valuable as your coins!</p>
-        <div className="grid grid-cols-3 gap-2">
-          {giftCards.map((card) => (
-            <div key={card.id} className="flex flex-col items-center bg-green-100 p-2 rounded-lg">
-              <Image
-                src={`/giftcards/${card.id}.jpg`}
-                alt={card.name}
-                width={60}
-                height={60}
-                className="rounded-lg shadow-md"
-              />
-              <p className="mt-1 text-xs font-semibold text-green-800 text-center">{card.name}</p>
-              <p className="text-lg font-bold text-red-600">{collectedCards[card.id] || 0}</p>
-              <button
-                onClick={() => onBuy(card.id)}
-                className="mt-2 px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition duration-300"
-              >
-                Buy ({card.price} Ad{card.price > 1 ? 's' : ''})
-              </button>
-            </div>
-          ))}
-        </div>
-        <button
-          onClick={onClose}
-          className="mt-4 w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-300"
-        >
-          Close
-        </button>
-      </motion.div>
-    </motion.div>
-  );
-};
-
-const DailyChest: React.FC = () => {
+const DailyChest: React.FC<DailyChestProps> = ({ adController, webApp }) => {
   const [coins, setCoins] = useState<number>(0);
   const [chestOpened, setChestOpened] = useState<boolean>(false);
   const [showStars, setShowStars] = useState<boolean>(false);
@@ -104,17 +36,35 @@ const DailyChest: React.FC = () => {
   const [giftCard, setGiftCard] = useState<{ id: number, name: string, description: string } | null>(null);
   const [collectedCards, setCollectedCards] = useState<Record<number, number>>({});
   const [isGiftCardModalOpen, setIsGiftCardModalOpen] = useState<boolean>(false);
-
-  // Assume you have implemented this hook
-  const showAd = useAdsgram({ blockId: '3072', onReward: () => {}, onError: () => {} });
+  const [dailyUpgradeCount, setDailyUpgradeCount] = useState<number>(0);
+  const [adsWatched, setAdsWatched] = useState<number>(0);
+  const [message, setMessage] = useState<string>('');
 
   useEffect(() => {
     const storedCoins = localStorage.getItem('coins');
-    const storedOpenCount = localStorage.getItem('openCount');
     const storedCards = localStorage.getItem('collectedCards');
+    const storedDailyUpgradeCount = localStorage.getItem('dailyUpgradeCount');
+    const storedAdsWatched = localStorage.getItem('adsWatched');
+    const lastOpenDate = localStorage.getItem('lastOpenDate');
+
     if (storedCoins) setCoins(parseInt(storedCoins));
-    if (storedOpenCount) setOpenCount(parseInt(storedOpenCount));
     if (storedCards) setCollectedCards(JSON.parse(storedCards));
+    if (storedDailyUpgradeCount) setDailyUpgradeCount(parseInt(storedDailyUpgradeCount));
+    if (storedAdsWatched) setAdsWatched(parseInt(storedAdsWatched));
+
+    const today = new Date().toDateString();
+    if (lastOpenDate !== today) {
+      setOpenCount(0);
+      setDailyUpgradeCount(0);
+      setAdsWatched(0);
+      localStorage.setItem('lastOpenDate', today);
+      localStorage.setItem('openCount', '0');
+      localStorage.setItem('dailyUpgradeCount', '0');
+      localStorage.setItem('adsWatched', '0');
+    } else {
+      const storedOpenCount = localStorage.getItem('openCount');
+      if (storedOpenCount) setOpenCount(parseInt(storedOpenCount));
+    }
   }, []);
 
   const playAudio = (filename: string) => {
@@ -123,13 +73,16 @@ const DailyChest: React.FC = () => {
   };
 
   const handleOpenChest = () => {
-    if (openCount >= 10) return;
+    if (openCount >= 10) {
+      setMessage("You've opened the maximum number of chests today. Come back tomorrow!");
+      return;
+    }
 
     setIsLoading(true);
     playAudio('/openingsound.mp3');
 
     setTimeout(() => {
-      const isGiftCard = Math.random() < 0.3; // 30% chance of getting a gift card
+      const isGiftCard = Math.random() < 0.3;
       const updatedOpenCount = openCount + 1;
 
       if (isGiftCard) {
@@ -142,13 +95,15 @@ const DailyChest: React.FC = () => {
         };
         setCollectedCards(updatedCollectedCards);
         localStorage.setItem('collectedCards', JSON.stringify(updatedCollectedCards));
+        setMessage(`You got a ${randomGiftCard.name} card!`);
       } else {
-        const coinsToAdd = Math.floor(Math.random() * 901) + 100; // Random between 100 and 1000
+        const coinsToAdd = Math.floor(Math.random() * 901) + 100;
         const updatedCoins = coins + coinsToAdd;
         setCoins(updatedCoins);
         setNewCoins(coinsToAdd);
         setGiftCard(null);
         localStorage.setItem('coins', updatedCoins.toString());
+        setMessage(`You got ${coinsToAdd} coins!`);
       }
 
       setChestOpened(true);
@@ -160,6 +115,7 @@ const DailyChest: React.FC = () => {
 
       if (updatedOpenCount === 10) {
         playAudio('/congratulations.mp3');
+        setMessage("Congratulations! You've opened all chests for today!");
       } else {
         playAudio('/goodresult.mp3');
       }
@@ -169,25 +125,88 @@ const DailyChest: React.FC = () => {
         setShowStars(false);
         setNewCoins(0);
         setGiftCard(null);
+        setMessage('');
       }, 5000);
-    }, 3000); // 3 second delay for dramatic effect
+    }, 3000);
   };
 
   const handleBuyCard = async (cardId: number) => {
+    if (dailyUpgradeCount >= 15) {
+      setMessage("You've upgraded 15 cards today. Come back tomorrow!");
+      return;
+    }
+
     const card = giftCards.find(c => c.id === cardId);
     if (!card) return;
 
+    let adWatchedCount = 0;
     for (let i = 0; i < card.price; i++) {
-      await showAd();
+      if (adsWatched >= 20) {
+        setMessage("You've watched the maximum number of ads for today.");
+        return;
+      }
+
+      try {
+        if (adController) {
+          const result = await adController.show();
+          if (result.done && !result.error) {
+            adWatchedCount++;
+            setAdsWatched(prev => {
+              const newCount = prev + 1;
+              localStorage.setItem('adsWatched', newCount.toString());
+              return newCount;
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to show ad:', error);
+        setMessage('Failed to show ad. Please try again.');
+        return;
+      }
     }
 
-    const updatedCollectedCards = {
-      ...collectedCards,
-      [cardId]: (collectedCards[cardId] || 0) + 1
-    };
-    setCollectedCards(updatedCollectedCards);
-    localStorage.setItem('collectedCards', JSON.stringify(updatedCollectedCards));
-    playAudio('/goodresult.mp3');
+    if (adWatchedCount === card.price) {
+      const updatedCollectedCards = {
+        ...collectedCards,
+        [cardId]: (collectedCards[cardId] || 0) + 1
+      };
+      setCollectedCards(updatedCollectedCards);
+      localStorage.setItem('collectedCards', JSON.stringify(updatedCollectedCards));
+      
+      setDailyUpgradeCount(prev => {
+        const newCount = prev + 1;
+        localStorage.setItem('dailyUpgradeCount', newCount.toString());
+        return newCount;
+      });
+
+      playAudio('/goodresult.mp3');
+      setMessage(`Successfully upgraded ${card.name}!`);
+    } else {
+      setMessage(`Purchase incomplete. Watched ${adWatchedCount} out of ${card.price} ads.`);
+    }
+  };
+
+  const StarBurst: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
+    if (!isVisible) return null;
+
+    return (
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute text-4xl animate-burst"
+            style={{
+              left: '50%',
+              top: '50%',
+              animation: `burst 1s ease-out forwards ${Math.random() * 0.5}s`,
+              transform: `rotate(${i * 18}deg) translateY(-100px)`,
+            }}
+          >
+            ⭐
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -300,6 +319,17 @@ const DailyChest: React.FC = () => {
           )}
         </AnimatePresence>
 
+        {message && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="mt-2 sm:mt-4 text-xl sm:text-2xl font-bold text-white z-30 text-shadow-lg text-center"
+          >
+            {message}
+          </motion.div>
+        )}
+
         <button
           onClick={handleOpenChest}
           disabled={openCount >= 10 || isLoading}
@@ -332,11 +362,80 @@ const DailyChest: React.FC = () => {
             onClose={() => setIsGiftCardModalOpen(false)}
             collectedCards={collectedCards}
             onBuy={handleBuyCard}
+            dailyUpgradeCount={dailyUpgradeCount}
+            adsWatched={adsWatched}
           />
         )}
       </AnimatePresence>
     </div>
   );
 }
+
+const GiftCardModal: React.FC<{ 
+  isOpen: boolean; 
+  onClose: () => void; 
+  collectedCards: Record<number, number>; 
+  onBuy: (cardId: number) => void;
+  dailyUpgradeCount: number;
+  adsWatched: number;
+}> = ({ isOpen, onClose, collectedCards, onBuy, dailyUpgradeCount, adsWatched }) => {
+  if (!isOpen) return null;
+
+  const totalCards = Object.values(collectedCards).reduce((sum, count) => sum + count, 0);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.9, y: 20 }}
+        className="bg-white rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-2xl font-bold mb-4 text-center text-red-700">Your Festive Collection</h2>
+        <p className="text-center text-sm mb-4 italic">Total Cards: {totalCards}</p>
+        <p className="text-center text-sm mb-4">Daily Upgrades: {dailyUpgradeCount}/15</p>
+        <p className="text-center text-sm mb-4">Ads Watched: {adsWatched}/20</p>
+        <div className="grid grid-cols-3 gap-2">
+          {giftCards.map((card) => (
+            <div key={card.id} className="flex flex-col items-center bg-green-100 p-2 rounded-lg">
+              <Image
+                src={`/giftcards/${card.id}.jpg`}
+                alt={card.name}
+                width={60}
+                height={60}
+                className="rounded-lg shadow-md"
+              />
+              <p className="mt-1 text-xs font-semibold text-green-800 text-center">{card.name}</p>
+              <p className="text-lg font-bold text-red-600">{collectedCards[card.id] || 0}</p>
+              {dailyUpgradeCount < 15 && adsWatched < 20 ? (
+                <button
+                  onClick={() => onBuy(card.id)}
+                  className="mt-2 px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition duration-300"
+                >
+                  Buy ({card.price} Ad{card.price > 1 ? 's' : ''})
+                </button>
+              ) : (
+                <p className="mt-2 text-xs text-gray-500">Max upgrades/ads reached</p>
+              )}
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={onClose}
+          className="mt-4 w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-300"
+        >
+          Close
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+};
 
 export default DailyChest;
