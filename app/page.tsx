@@ -1,7 +1,24 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useRouter } from 'next/router';
 import { Gift } from 'lucide-react';
+
+declare global {
+  interface Window {
+    Telegram: {
+      WebApp: {
+        initData: string;
+        initDataUnsafe: {
+          user?: {
+            id: number;
+            username: string;
+          };
+        };
+      };
+    };
+  }
+}
 
 const SNOWFLAKE_COUNT = 30;
 const SNOWFLAKE_SIZES = ['text-3xl', 'text-4xl', 'text-5xl', 'text-6xl'];
@@ -75,6 +92,10 @@ export default function Home() {
   const [burstEffects, setBurstEffects] = useState<{id: number; x: number; y: number}[]>([]);
   const [telegramId, setTelegramId] = useState('');
   const [telegramUsername, setTelegramUsername] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  
 
   // Audio context and sources
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -134,6 +155,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    useEffect(() => {
     const initWebApp = async () => {
       if (typeof window !== 'undefined') {
         const WebApp = (await import('@twa-dev/sdk')).default;
@@ -142,8 +164,62 @@ export default function Home() {
         setTelegramUsername(WebApp.initDataUnsafe.user?.username || '');
       }
     };
-    initWebApp();
 
+    const initUser = async () => {
+      await initWebApp();
+
+      const storedTelegramId = localStorage.getItem('telegramId');
+
+      if (storedTelegramId) {
+        // User has opened the app before
+        setIsLoading(false);
+        return;
+      }
+
+      // First-time user, proceed with initialization
+      if (!telegramId) {
+        console.error('User data not available');
+        setIsLoading(false);
+        return;
+      }
+
+      // Extract referrer_id from URL if present
+      const referrer_id = router.query.start ? String(router.query.start) : null;
+
+      // Prepare user data
+      const userData = {
+        telegram_id: telegramId,
+        telegram_username: telegramUsername,
+        referrer_id,
+        coin_balance: 0 // Initial coin balance
+      };
+
+      try {
+        // Send user data to your API
+        const response = await fetch('/api/user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to save user data');
+        }
+
+        // Store telegram_id in localStorage
+        localStorage.setItem('telegramId', telegramId);
+
+        console.log('User data saved successfully');
+      } catch (error) {
+        console.error('Error saving user data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initUser();
     // Initialize snowflakes
     const initialSnowflakes = Array.from({ length: SNOWFLAKE_COUNT }, (_, i) => ({ 
       id: i, 
@@ -164,7 +240,7 @@ export default function Home() {
     const animationInterval = setInterval(animateSnowflakes, 50);
 
     return () => clearInterval(animationInterval);
-  }, []);
+  }, [telegramId, telegramUsername, router.query.start]]);
 
   // Update localStorage whenever coins change
   useEffect(() => {
