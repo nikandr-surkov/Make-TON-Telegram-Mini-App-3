@@ -200,25 +200,20 @@ const handleBuyCard = async (cardId: number) => {
   const card = giftCards.find(c => c.id === cardId);
   if (!card || upgradesRemaining <= 0) return;
 
-  let adsWatched = 0;
-  let adsFailed = 0;
-
-  for (let i = 0; i < card.price; i++) {
-    try {
-      const result = await showAd();
-      if (result.error || result.state !== 'playing') {
-        console.log('Failed to show ad or ad was not played, stopping process.');
-        return;
-      }
-      adsWatched++;
-    } catch (error) {
-      adsFailed++;
-      console.log('Failed to show ad, stopping process.');
+  try {
+    // Show ad when user clicks purchase button
+    const result = await showAd();
+    if (result.error || result.state !== 'playing') {
+      console.log('Failed to show ad or ad was not played, stopping process.');
       return;
     }
-  }
 
-  if (adsWatched === card.price && adsFailed === 0) {
+    console.log('Ad played successfully. Waiting for 16 seconds before updating balance...');
+
+    // Wait for 16 seconds
+    await new Promise(resolve => setTimeout(resolve, 16000));
+
+    // Update card balance
     const updatedCollectedCards = {
       ...collectedCards,
       [cardId]: (collectedCards[cardId] || 0) + 1
@@ -232,8 +227,8 @@ const handleBuyCard = async (cardId: number) => {
     
     playAudio('/goodresult.mp3');
     console.log(`Card ${cardId} successfully purchased!`);
-  } else {
-    console.log('Not all ads were watched or some ads failed. Cards were not updated.');
+  } catch (error) {
+    console.log('Failed to show ad or update balance, stopping process.');
   }
 };
   
