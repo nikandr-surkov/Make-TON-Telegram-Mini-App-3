@@ -11,12 +11,6 @@ interface StarBurstProps {
   isVisible: boolean;
 }
 
-const showAd = useAdsgram({
-  blockId: 'your-block-id',
-  onReward: () => {},
-  onError: () => {},
-  onSkip: () => {},
-});
 
 const StarBurst: React.FC<StarBurstProps> = ({ isVisible }) => {
   if (!isVisible) return null;
