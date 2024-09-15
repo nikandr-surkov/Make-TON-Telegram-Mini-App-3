@@ -240,7 +240,7 @@ export default function Home() {
     const animationInterval = setInterval(animateSnowflakes, 50);
 
     return () => clearInterval(animationInterval);
-  }, [telegramId, telegramUsername, router.query.start]]);
+  }, [telegramId, telegramUsername, router.query.start]);
 
   // Update localStorage whenever coins change
   useEffect(() => {
