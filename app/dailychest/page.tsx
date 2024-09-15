@@ -179,6 +179,7 @@ const handleBuyCard = async (cardId: number) => {
   if (!card) return;
 
   let adsWatched = 0;
+  let adsFailed = 0; // Track number of failed ads
 
   const handleReward = () => {
     adsWatched += 1;
@@ -187,15 +188,24 @@ const handleBuyCard = async (cardId: number) => {
 
   const handleError = (result: ShowPromiseResult) => {
     console.log('Ad error:', result);
+    adsFailed += 1; // Increment failed ads count
     // Handle the error if needed (e.g., stop the process, show a message, etc.)
   };
 
   for (let i = 0; i < card.price; i++) {
-    await showAd();
+    try {
+      await showAd(); // Wait for ad to finish
+      handleReward(); // Update reward count
+    } catch (error) {
+      handleError({ error: true, done: false, state: 'error', description: 'Ad failed' });
+      // If ad fails, stop the process and handle error
+      console.log('Failed to show ad, stopping process.');
+      return;
+    }
   }
 
-  // Only update the number of cards after all ads are successfully watched
-  if (adsWatched === card.price) {
+  // Only update the number of cards if all ads were successfully watched
+  if (adsWatched === card.price && adsFailed === 0) {
     const updatedCollectedCards = {
       ...collectedCards,
       [cardId]: (collectedCards[cardId] || 0) + 1
@@ -204,11 +214,9 @@ const handleBuyCard = async (cardId: number) => {
     localStorage.setItem('collectedCards', JSON.stringify(updatedCollectedCards));
     playAudio('/goodresult.mp3');
   } else {
-    console.log('Not all ads were watched. Cards were not updated.');
+    console.log('Not all ads were watched or some ads failed. Cards were not updated.');
   }
 };
-
-
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-700 to-green-700 flex flex-col items-center justify-between p-4 sm:p-8 relative overflow-hidden">
