@@ -24,7 +24,15 @@ const tasks = [
     link: "https://www.youtube.com/@telemasgold",
     reward: 1500,
     emoji: "🎥"
-  }
+  },
+  {
+    id: 10,
+    title: "Play Dapp Farm",
+    description: "Play, learn and earn with our partners",
+    link: "https://t.me/DappFarmBot/earn",
+    reward: 1500,
+    emoji: "🎥"
+  },
 ];
 
 export async function GET() {
