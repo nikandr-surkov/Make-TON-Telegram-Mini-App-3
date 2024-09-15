@@ -175,49 +175,51 @@ const DailyChest: React.FC = () => {
   };
 
 const handleBuyCard = async (cardId: number) => {
-  const card = giftCards.find(c => c.id === cardId);
-  if (!card) return;
+    const card = giftCards.find(c => c.id === cardId);
+    if (!card || upgradesRemaining <= 0) return;
 
-  let adsWatched = 0;
-  let adsFailed = 0; // Track number of failed ads
+    let adsWatched = 0;
+    const totalAdsRequired = card.price;
 
-  const handleReward = () => {
-    adsWatched += 1;
-    console.log(`Ad watched: ${adsWatched} of ${card.price}`);
-  };
-
-  const handleError = (result: ShowPromiseResult) => {
-    console.log('Ad error:', result);
-    adsFailed += 1; // Increment failed ads count
-    // Handle the error if needed (e.g., stop the process, show a message, etc.)
-  };
-
-  for (let i = 0; i < card.price; i++) {
-    try {
-      await showAd(); // Wait for ad to finish
-      handleReward(); // Update reward count
-    } catch (error) {
-      handleError({ error: true, done: false, state: 'error', description: 'Ad failed' });
-      // If ad fails, stop the process and handle error
-      console.log('Failed to show ad, stopping process.');
-      return;
-    }
-  }
-
-  // Only update the number of cards if all ads were successfully watched
-  if (adsWatched === card.price && adsFailed === 0) {
-    const updatedCollectedCards = {
-      ...collectedCards,
-      [cardId]: (collectedCards[cardId] || 0) + 1
+    const watchAd = async (): Promise<boolean> => {
+      try {
+        await showAd();
+        return true;
+      } catch (error) {
+        console.error('Ad failed to show:', error);
+        return false;
+      }
     };
-    setCollectedCards(updatedCollectedCards);
-    localStorage.setItem('collectedCards', JSON.stringify(updatedCollectedCards));
-    playAudio('/goodresult.mp3');
-  } else {
-    console.log('Not all ads were watched or some ads failed. Cards were not updated.');
-  }
-};
 
+    for (let i = 0; i < totalAdsRequired; i++) {
+      const adWatched = await watchAd();
+      if (adWatched) {
+        adsWatched++;
+        console.log(`Ad watched: ${adsWatched} of ${totalAdsRequired}`);
+      } else {
+        console.log('Ad failed, stopping the process.');
+        break;
+      }
+    }
+
+    if (adsWatched === totalAdsRequired) {
+      const updatedCollectedCards = {
+        ...collectedCards,
+        [cardId]: (collectedCards[cardId] || 0) + 1
+      };
+      setCollectedCards(updatedCollectedCards);
+      localStorage.setItem('collectedCards', JSON.stringify(updatedCollectedCards));
+
+      const newUpgradesRemaining = upgradesRemaining - 1;
+      setUpgradesRemaining(newUpgradesRemaining);
+      localStorage.setItem('upgradesRemaining', newUpgradesRemaining.toString());
+
+      playAudio('/goodresult.mp3');
+      console.log(`Card ${cardId} successfully purchased!`);
+    } else {
+      console.log('Not all ads were watched. Card was not purchased.');
+    }
+  };
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-700 to-green-700 flex flex-col items-center justify-between p-4 sm:p-8 relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('/snowflakes.png')] opacity-30 animate-fall"></div>
