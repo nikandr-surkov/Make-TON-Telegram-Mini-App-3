@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Gift } from 'lucide-react';
-import { Analytics } from "@vercel/analytics/react"
+import { Analytics } from "@vercel/analytics/react";
 
 const SNOWFLAKE_COUNT = 30;
 const SNOWFLAKE_SIZES = ['text-3xl', 'text-4xl', 'text-5xl', 'text-6xl'];
@@ -228,8 +228,8 @@ export default function Home() {
     )), []);
 
   return (
-    <Analytics />
     <div className="h-screen bg-gradient-to-b from-green-900 to-green-600 relative overflow-hidden">
+      <Analytics />
       {/* Impressive Background */}
       <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/winter_landscape.jpg')" }} />
       <div className="absolute inset-0 bg-green-900 bg-opacity-50" /> {/* Overlay to maintain green tint */}
