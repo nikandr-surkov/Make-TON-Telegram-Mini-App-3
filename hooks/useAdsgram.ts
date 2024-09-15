@@ -25,6 +25,7 @@ export interface useAdsgramParams {
   onError?: (result: ShowPromiseResult) => void;
 }
 
+// Modify useAdsgram to accept external callbacks
 export function useAdsgram({ blockId, onReward, onError }: useAdsgramParams): () => Promise<void> {
   const AdControllerRef = useRef<AdController | undefined>(undefined);
 
@@ -37,11 +38,11 @@ export function useAdsgram({ blockId, onReward, onError }: useAdsgramParams): ()
       AdControllerRef.current
         .show()
         .then(() => {
-          // user watch ad till the end
+          // Trigger reward callback when ad is successfully watched
           onReward();
         })
         .catch((result: ShowPromiseResult) => {
-          // user get error during playing ad or skip ad
+          // Trigger error callback in case of an issue with the ad
           onError?.(result);
         });
     } else {
