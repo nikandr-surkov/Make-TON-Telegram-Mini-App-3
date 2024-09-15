@@ -200,30 +200,30 @@ const handleBuyCard = async (cardId: number) => {
     if (!card || upgradesRemaining <= 0) return;
 
     let adsWatched = 0;
-    const totalAdsRequired = card.price;
+    let adsFailed = 0;
 
-    const watchAd = async (): Promise<boolean> => {
-      return new Promise((resolve) => {
-        // Simulating ad viewing with a timeout
-        setTimeout(() => {
-          console.log('Ad watched');
-          resolve(true);
-        }, 1000);
-      });
+    const handleReward = () => {
+      adsWatched += 1;
+      console.log(`Ad watched: ${adsWatched} of ${card.price}`);
     };
 
-    for (let i = 0; i < totalAdsRequired; i++) {
-      const adWatched = await watchAd();
-      if (adWatched) {
-        adsWatched++;
-        console.log(`Ad watched: ${adsWatched} of ${totalAdsRequired}`);
-      } else {
-        console.log('Ad failed, stopping the process.');
-        break;
+    const handleError = (result: ShowPromiseResult) => {
+      console.log('Ad error:', result);
+      adsFailed += 1;
+    };
+
+    for (let i = 0; i < card.price; i++) {
+      try {
+        await showAd();
+        handleReward();
+      } catch (error) {
+        handleError({ error: true, done: false, state: 'error', description: 'Ad failed' });
+        console.log('Failed to show ad, stopping process.');
+        return;
       }
     }
 
-    if (adsWatched === totalAdsRequired) {
+    if (adsWatched === card.price && adsFailed === 0) {
       const updatedCollectedCards = {
         ...collectedCards,
         [cardId]: (collectedCards[cardId] || 0) + 1
@@ -238,10 +238,10 @@ const handleBuyCard = async (cardId: number) => {
       playAudio('/goodresult.mp3');
       console.log(`Card ${cardId} successfully purchased!`);
     } else {
-      console.log('Not all ads were watched. Card was not purchased.');
+      console.log('Not all ads were watched or some ads failed. Cards were not updated.');
     }
   };
-
+  
   const onBuy = (cardId: number) => {
     if (upgradesRemaining <= 0) {
       alert("You've reached the maximum upgrades for today. Come back tomorrow!");
