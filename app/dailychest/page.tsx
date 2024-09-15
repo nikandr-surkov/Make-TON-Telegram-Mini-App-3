@@ -177,14 +177,23 @@ const handleBuyCard = async (cardId: number) => {
   const card = giftCards.find(c => c.id === cardId);
   if (!card) return;
 
-  // Play ads in succession, no interaction in between
   let adsWatched = 0;
+
+  const handleReward = () => {
+    adsWatched += 1;
+    console.log(`Ad watched: ${adsWatched} of ${card.price}`);
+  };
+
+  const handleError = (result: ShowPromiseResult) => {
+    console.log('Ad error:', result);
+    // Handle the error if needed (e.g., stop the process, show a message, etc.)
+  };
+
   for (let i = 0; i < card.price; i++) {
-    await showAd(); // Wait for each ad to complete before showing the next one
-    adsWatched++;
+    await showAd({ onReward: handleReward, onError: handleError });
   }
 
-  // Update the number of cards only if all ads have been watched
+  // Only update the number of cards after all ads are successfully watched
   if (adsWatched === card.price) {
     const updatedCollectedCards = {
       ...collectedCards,
@@ -194,9 +203,10 @@ const handleBuyCard = async (cardId: number) => {
     localStorage.setItem('collectedCards', JSON.stringify(updatedCollectedCards));
     playAudio('/goodresult.mp3');
   } else {
-    console.log('Not all ads were watched.');
+    console.log('Not all ads were watched. Cards were not updated.');
   }
 };
+
 
 
   return (
