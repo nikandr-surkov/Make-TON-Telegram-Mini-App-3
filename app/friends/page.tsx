@@ -54,7 +54,7 @@ export default function Friends() {
           </p>
         </div>
 
-        <ReferralSystem initData={initData} userId={userId} startParam={startParam} />
+{/*         <ReferralSystem initData={initData} userId={userId} startParam={startParam} /> */}
         
         <div className="mt-8 flex justify-center items-center space-x-4">
           <Gift className="text-red-700" size={24} />
