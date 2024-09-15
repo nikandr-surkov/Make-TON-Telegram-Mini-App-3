@@ -235,6 +235,15 @@ export default function Home() {
     localStorage.setItem('coins', coins.toString());
   }, [coins]);
 
+  const playSound = useCallback((buffer: AudioBuffer) => {
+    if (audioContextRef.current) {
+      const source = audioContextRef.current.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioContextRef.current.destination);
+      source.start();
+    }
+  }, []);
+
   const handleSnowflakeTap = useCallback((id: number) => {
     setSnowflakes(prev => {
       const tappedSnowflake = prev.find(sf => sf.id === id);
