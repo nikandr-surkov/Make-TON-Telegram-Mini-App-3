@@ -61,7 +61,7 @@ const GiftCardModal: React.FC<{ isOpen: boolean; onClose: () => void; collectedC
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-2xl font-bold mb-4 text-center text-red-700">Your Festive Collection</h2>
-        <p className="text-center text-sm mb-4 italic">Your cards are as valuable as your coins!<br>You can only buy one card at a time and watch up to only 20 ads</p>
+        <p className="text-center text-sm mb-4 italic">Your cards are as valuable as your coins!</p>
         <div className="grid grid-cols-3 gap-2">
           {giftCards.map((card) => (
             <div key={card.id} className="flex flex-col items-center bg-green-100 p-2 rounded-lg">
@@ -108,69 +108,6 @@ const DailyChest: React.FC = () => {
   // Assume you have implemented this hook
   const showAd = useAdsgram({ blockId: '3072', onReward: () => {}, onError: () => {} });
 
-const searchParams = useSearchParams();
-
-  useEffect(() => {
-    const initializeUser = async () => {
-      // Check if telegram_id is already stored in local storage
-      const storedTelegramId = localStorage.getItem('telegram_id');
-      if (storedTelegramId) {
-        console.log('User already registered');
-        return;
-      }
-
-      // Get Telegram WebApp data
-      const tg = window.Telegram?.WebApp;
-      if (!tg) {
-        console.error('Telegram WebApp is not available');
-        return;
-      }
-
-      const telegram_id = tg.initDataUnsafe?.user?.id;
-      const telegram_username = tg.initDataUnsafe?.user?.username;
-
-      if (!telegram_id || !telegram_username) {
-        console.error('Unable to get Telegram user data');
-        return;
-      }
-
-      // Get referrer_id from URL if available
-      const referrer_id = searchParams.get('startapp') || null;
-
-      // Prepare the data to be sent
-      const userData = {
-        telegram_id,
-        telegram_username,
-        referrer_id,
-        coin_balance: 0 // Initialize with 0 or any default value
-      };
-
-      try {
-        // Send POST request to your API route
-        const response = await fetch('/api/user', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(userData),
-        });
-
-        if (response.ok) {
-          // If successful, store telegram_id in local storage
-          localStorage.setItem('telegram_id', telegram_id);
-          console.log('User registered successfully');
-        } else {
-          console.error('Failed to register user');
-        }
-      } catch (error) {
-        console.error('Error registering user:', error);
-      }
-    };
-
-    initializeUser();
-  }, [searchParams]); // Add searchParams as a dependency
-
-    
   useEffect(() => {
     const storedCoins = localStorage.getItem('coins');
     const storedOpenCount = localStorage.getItem('openCount');
@@ -236,37 +173,13 @@ const searchParams = useSearchParams();
     }, 3000); // 3 second delay for dramatic effect
   };
 
-const handleBuyCard = async (cardId: number) => {
-  const card = giftCards.find(c => c.id === cardId);
-  if (!card) return;
+  const handleBuyCard = async (cardId: number) => {
+    const card = giftCards.find(c => c.id === cardId);
+    if (!card) return;
 
-  let adWatchedCount = 0;
-  for (let i = 0; i < card.price; i++) {
-    try {
+    for (let i = 0; i < card.price; i++) {
       await showAd();
-      adWatchedCount++;
-    } catch (error) {
-      console.error('Failed to show ad:', error);
-      // Optionally show an error message to the user
-      break;
     }
-  }
-
-  if (adWatchedCount === card.price) {
-    const updatedCollectedCards = {
-      ...collectedCards,
-      [cardId]: (collectedCards[cardId] || 0) + 1
-    };
-    setCollectedCards(updatedCollectedCards);
-    localStorage.setItem('collectedCards', JSON.stringify(updatedCollectedCards));
-    playAudio('/goodresult.mp3');
-    // Optionally show a success message to the user
-  } else {
-    // Inform the user that the purchase was not completed due to incomplete ad views
-    console.log(`Purchase incomplete. Watched ${adWatchedCount} out of ${card.price} ads.`);
-    // Optionally show a message to the user
-  }
-};
 
     const updatedCollectedCards = {
       ...collectedCards,
