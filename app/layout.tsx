@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <Script src="https://cdn.adsgram.ai/adsgram-sdk.min.js" />
+        <Script src="https://sad.adsgram.ai/js/sad.min.js" />
       </head>
       <body className={inter.className}>
         <ClientLayout>{children}</ClientLayout>
