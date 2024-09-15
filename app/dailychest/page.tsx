@@ -11,6 +11,13 @@ interface StarBurstProps {
   isVisible: boolean;
 }
 
+const showAd = useAdsgram({
+  blockId: 'your-block-id',
+  onReward: () => {},
+  onError: () => {},
+  onSkip: () => {},
+});
+
 const StarBurst: React.FC<StarBurstProps> = ({ isVisible }) => {
   if (!isVisible) return null;
 
@@ -202,28 +209,6 @@ const handleBuyCard = async (cardId: number) => {
   let adsWatched = 0;
   let adsFailed = 0;
 
-  const handleReward = () => {
-    adsWatched += 1;
-    console.log(`Ad watched: ${adsWatched} of ${card.price}`);
-  };
-
-  const handleError = (result: ShowPromiseResult) => {
-    console.log('Ad error:', result);
-    adsFailed += 1;
-  };
-
-  const handleSkip = () => {
-    console.log('Ad skipped');
-    adsFailed += 1;
-  };
-
-  const showAd = useAdsgram({
-    blockId: 'your-block-id',
-    onReward: handleReward,
-    onError: handleError,
-    onSkip: handleSkip,
-  });
-
   for (let i = 0; i < card.price; i++) {
     try {
       const result = await showAd();
@@ -231,8 +216,9 @@ const handleBuyCard = async (cardId: number) => {
         console.log('Failed to show ad or ad was not played, stopping process.');
         return;
       }
+      adsWatched++;
     } catch (error) {
-      handleError({ error: true, done: false, state: 'load', description: 'Ad failed' });
+      adsFailed++;
       console.log('Failed to show ad, stopping process.');
       return;
     }
@@ -256,6 +242,7 @@ const handleBuyCard = async (cardId: number) => {
     console.log('Not all ads were watched or some ads failed. Cards were not updated.');
   }
 };
+  
   const onBuy = (cardId: number) => {
     if (upgradesRemaining <= 0) {
       alert("You've reached the maximum upgrades for today. Come back tomorrow!");
