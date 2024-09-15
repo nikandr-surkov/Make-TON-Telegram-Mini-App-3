@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { useAdsgram, showPromiseResult } from '../../hooks/useAdsgram';
+import { useAdsgram, ShowPromiseResult } from '../../hooks/useAdsgram';
 
 import { ShoppingCart } from 'lucide-react';
 
