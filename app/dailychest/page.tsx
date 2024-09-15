@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import { useAdsgram } from '../../hooks/useAdsgram'; // Assume you have this hook implemented
 import { ShoppingCart } from 'lucide-react';
 
 interface StarBurstProps {
@@ -10,22 +11,38 @@ interface StarBurstProps {
 }
 
 const StarBurst: React.FC<StarBurstProps> = ({ isVisible }) => {
-  // ... (StarBurst component remains unchanged)
+  if (!isVisible) return null;
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(20)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute text-4xl animate-burst"
+          style={{
+            left: '50%',
+            top: '50%',
+            animation: `burst 1s ease-out forwards ${Math.random() * 0.5}s`,
+            transform: `rotate(${i * 18}deg) translateY(-100px)`,
+          }}
+        >
+          ⭐
+        </div>
+      ))}
+    </div>
+  );
 };
 
 const giftCards = [
-  // ... (giftCards array remains unchanged)
+  { id: 1, name: "Santa's Magic", description: "May Santa bring joy and light with a tree full of Christmas magic!", price: 1 },
+  { id: 2, name: "Snowflake Joy", description: "Unwrap the holiday cheer as snowflakes and presents brighten your heart!", price: 2 },
+  { id: 3, name: "Santa's Bounty", description: "Let Santa fill your world with gifts, warmth, and endless joy this season!", price: 3 },
+  { id: 4, name: "Frosty's Cheer", description: "Embrace the holiday spirit with a snowman, bringing frosty fun and smiles!", price: 2 },
+  { id: 5, name: "Stocking Wonder", description: "Stockings full of love and festive surprises await to make your Christmas bright!", price: 1 },
+  { id: 6, name: "Jingle Delight", description: "Ring the bells of joy and unwrap the wonders of Christmas with festive delight!", price: 2 }
 ];
 
-interface GiftCardModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  collectedCards: Record<number, number>;
-  onBuy: (cardId: number) => void;
-  upgradesRemaining: number;
-}
-
-const GiftCardModal: React.FC<GiftCardModalProps> = ({ isOpen, onClose, collectedCards, onBuy, upgradesRemaining }) => {
+const GiftCardModal: React.FC<{ isOpen: boolean; onClose: () => void; collectedCards: Record<number, number>; onBuy: (cardId: number) => void }> = ({ isOpen, onClose, collectedCards, onBuy }) => {
   if (!isOpen) return null;
 
   return (
@@ -45,11 +62,6 @@ const GiftCardModal: React.FC<GiftCardModalProps> = ({ isOpen, onClose, collecte
       >
         <h2 className="text-2xl font-bold mb-4 text-center text-red-700">Your Festive Collection</h2>
         <p className="text-center text-sm mb-4 italic">Your cards are as valuable as your coins!</p>
-        {upgradesRemaining > 0 ? (
-          <p className="text-center text-sm mb-4">Upgrades remaining today: {upgradesRemaining}/15</p>
-        ) : (
-          <p className="text-center text-sm mb-4 text-red-600">You've reached the daily upgrade limit. Come back tomorrow!</p>
-        )}
         <div className="grid grid-cols-3 gap-2">
           {giftCards.map((card) => (
             <div key={card.id} className="flex flex-col items-center bg-green-100 p-2 rounded-lg">
@@ -62,14 +74,12 @@ const GiftCardModal: React.FC<GiftCardModalProps> = ({ isOpen, onClose, collecte
               />
               <p className="mt-1 text-xs font-semibold text-green-800 text-center">{card.name}</p>
               <p className="text-lg font-bold text-red-600">{collectedCards[card.id] || 0}</p>
-              {upgradesRemaining > 0 && (
-                <button
-                  onClick={() => onBuy(card.id)}
-                  className="mt-2 px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition duration-300"
-                >
-                  Buy ({card.price} Ad{card.price > 1 ? 's' : ''})
-                </button>
-              )}
+              <button
+                onClick={() => onBuy(card.id)}
+                className="mt-2 px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition duration-300"
+              >
+                Buy ({card.price} Ad{card.price > 1 ? 's' : ''})
+              </button>
             </div>
           ))}
         </div>
@@ -94,32 +104,17 @@ const DailyChest: React.FC = () => {
   const [giftCard, setGiftCard] = useState<{ id: number, name: string, description: string } | null>(null);
   const [collectedCards, setCollectedCards] = useState<Record<number, number>>({});
   const [isGiftCardModalOpen, setIsGiftCardModalOpen] = useState<boolean>(false);
-  const [upgradesRemaining, setUpgradesRemaining] = useState<number>(15);
-  const [lastResetDate, setLastResetDate] = useState<string>('');
+
+  // Assume you have implemented this hook
+  const showAd = useAdsgram({ blockId: '3072', onReward: () => {}, onError: () => {} });
 
   useEffect(() => {
     const storedCoins = localStorage.getItem('coins');
     const storedOpenCount = localStorage.getItem('openCount');
     const storedCards = localStorage.getItem('collectedCards');
-    const storedUpgrades = localStorage.getItem('upgradesRemaining');
-    const storedLastResetDate = localStorage.getItem('lastResetDate');
-    const currentDate = new Date().toDateString();
-
     if (storedCoins) setCoins(parseInt(storedCoins));
+    if (storedOpenCount) setOpenCount(parseInt(storedOpenCount));
     if (storedCards) setCollectedCards(JSON.parse(storedCards));
-    
-    if (storedLastResetDate !== currentDate) {
-      setOpenCount(0);
-      setUpgradesRemaining(15);
-      setLastResetDate(currentDate);
-      localStorage.setItem('lastResetDate', currentDate);
-      localStorage.setItem('openCount', '0');
-      localStorage.setItem('upgradesRemaining', '15');
-    } else {
-      if (storedOpenCount) setOpenCount(parseInt(storedOpenCount));
-      if (storedUpgrades) setUpgradesRemaining(parseInt(storedUpgrades));
-      if (storedLastResetDate) setLastResetDate(storedLastResetDate);
-    }
   }, []);
 
   const playAudio = (filename: string) => {
@@ -180,11 +175,10 @@ const DailyChest: React.FC = () => {
 
   const handleBuyCard = async (cardId: number) => {
     const card = giftCards.find(c => c.id === cardId);
-    if (!card || upgradesRemaining <= 0) return;
+    if (!card) return;
 
-    // Simulating ad watching
     for (let i = 0; i < card.price; i++) {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay to simulate ad watching
+      await showAd();
     }
 
     const updatedCollectedCards = {
@@ -193,15 +187,8 @@ const DailyChest: React.FC = () => {
     };
     setCollectedCards(updatedCollectedCards);
     localStorage.setItem('collectedCards', JSON.stringify(updatedCollectedCards));
-
-    const newUpgradesRemaining = upgradesRemaining - 1;
-    setUpgradesRemaining(newUpgradesRemaining);
-    localStorage.setItem('upgradesRemaining', newUpgradesRemaining.toString());
-
     playAudio('/goodresult.mp3');
   };
-
-  const totalCards = Object.values(collectedCards).reduce((sum, count) => sum + count, 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-700 to-green-700 flex flex-col items-center justify-between p-4 sm:p-8 relative overflow-hidden">
@@ -223,9 +210,6 @@ const DailyChest: React.FC = () => {
               onClick={() => setIsGiftCardModalOpen(true)}
               className="relative w-16 h-16 transition-transform duration-300 hover:scale-110"
             >
-              <div className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1 z-10">
-                {totalCards}
-              </div>
               {[2, 1, 0].map((index) => (
                 <div
                   key={index}
@@ -348,7 +332,6 @@ const DailyChest: React.FC = () => {
             onClose={() => setIsGiftCardModalOpen(false)}
             collectedCards={collectedCards}
             onBuy={handleBuyCard}
-            upgradesRemaining={upgradesRemaining}
           />
         )}
       </AnimatePresence>
