@@ -191,7 +191,7 @@ const handleBuyCard = async (cardId: number) => {
   };
 
   for (let i = 0; i < card.price; i++) {
-    await showAd({ onReward: handleReward, onError: handleError });
+    await showAd();
   }
 
   // Only update the number of cards after all ads are successfully watched
