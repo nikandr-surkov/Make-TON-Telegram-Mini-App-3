@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { useAdsgram } from '../../hooks/useAdsgram';
+import { useAdsgram, showPromiseResult } from '../../hooks/useAdsgram';
+
 import { ShoppingCart } from 'lucide-react';
 
 interface StarBurstProps {
