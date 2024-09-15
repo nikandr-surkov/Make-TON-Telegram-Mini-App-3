@@ -75,6 +75,7 @@ export function useAdsgram({
   return useCallback(async (): Promise<ShowPromiseResult> => {
     if (adControllerRef.current) {
       try {
+        
         const result = await adControllerRef.current.show();
         return result;
       } catch (error) {
