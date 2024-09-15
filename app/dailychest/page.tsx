@@ -197,41 +197,53 @@ const DailyChest: React.FC = () => {
   };
 
 const handleBuyCard = async (cardId: number) => {
-  const card = giftCards.find(c => c.id === cardId);
-  if (!card || upgradesRemaining <= 0) return;
+    const card = giftCards.find(c => c.id === cardId);
+    if (!card || upgradesRemaining <= 0) return;
 
-  try {
-    // Show ad when user clicks purchase button
-    const result = await showAd();
-    if (result.error || result.state !== 'playing') {
-      console.log('Failed to show ad or ad was not played, stopping process.');
-      return;
+    let adsWatched = 0;
+    let adsFailed = 0;
+
+    const handleReward = () => {
+      adsWatched += 1;
+      console.log(`Ad watched: ${adsWatched} of ${card.price}`);
+    };
+
+    const handleError = (result: ShowPromiseResult) => {
+      console.log('Ad error:', result);
+      adsFailed += 1;
+    };
+
+    for (let i = 0; i < card.price; i++) {
+      try {
+        await showAd();
+        handleReward();
+      } catch (error) {
+        handleError({ error: true, done: false, state: 'error', description: 'Ad failed' });
+        console.log('Failed to show ad, stopping process.');
+        return;
+      }
     }
 
-    console.log('Ad played successfully. Waiting for 16 seconds before updating balance...');
+    if (adsWatched === card.price && adsFailed === 0) {
+      const updatedCollectedCards = {
+        ...collectedCards,
+        [cardId]: (collectedCards[cardId] || 0) + 1
+      };
+      setCollectedCards(updatedCollectedCards);
+      localStorage.setItem('collectedCards', JSON.stringify(updatedCollectedCards));
 
-    // Wait for 16 seconds
-    await new Promise(resolve => setTimeout(resolve, 16000));
+      const newUpgradesRemaining = upgradesRemaining - 1;
+      setUpgradesRemaining(newUpgradesRemaining);
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      localStorage.setItem('upgradesRemaining', newUpgradesRemaining.toString());
 
-    // Update card balance
-    const updatedCollectedCards = {
-      ...collectedCards,
-      [cardId]: (collectedCards[cardId] || 0) + 1
-    };
-    setCollectedCards(updatedCollectedCards);
-    localStorage.setItem('collectedCards', JSON.stringify(updatedCollectedCards));
+      playAudio('/goodresult.mp3');
+      console.log(`Card ${cardId} successfully purchased!`);
+    } else {
+      console.log('Not all ads were watched or some ads failed. Cards were not updated.');
+    }
+  };
     
-    const newUpgradesRemaining = upgradesRemaining - 1;
-    setUpgradesRemaining(newUpgradesRemaining);
-    localStorage.setItem('upgradesRemaining', newUpgradesRemaining.toString());
-    
-    playAudio('/goodresult.mp3');
-    console.log(`Card ${cardId} successfully purchased!`);
-  } catch (error) {
-    console.log('Failed to show ad or update balance, stopping process.');
-  }
-};
-  
   const onBuy = (cardId: number) => {
     if (upgradesRemaining <= 0) {
       alert("You've reached the maximum upgrades for today. Come back tomorrow!");
