@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { Gift } from 'lucide-react';
+import WebApp from '@twa-dev/sdk';
 
 declare global {
   interface Window {
@@ -95,8 +96,6 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  
-
   // Audio context and sources
   const audioContextRef = useRef<AudioContext | null>(null);
   const bgMusicSourceRef = useRef<AudioBufferSourceNode | null>(null);
@@ -144,21 +143,9 @@ export default function Home() {
     };
   }, []);
 
-  // Play sound effect
-  const playSound = useCallback((buffer: AudioBuffer) => {
-    if (audioContextRef.current) {
-      const source = audioContextRef.current.createBufferSource();
-      source.buffer = buffer;
-      source.connect(audioContextRef.current.destination);
-      source.start();
-    }
-  }, []);
-
   useEffect(() => {
-    useEffect(() => {
     const initWebApp = async () => {
       if (typeof window !== 'undefined') {
-        const WebApp = (await import('@twa-dev/sdk')).default;
         WebApp.ready();
         setTelegramId(WebApp.initDataUnsafe.user?.id.toString() || '');
         setTelegramUsername(WebApp.initDataUnsafe.user?.username || '');
@@ -220,6 +207,7 @@ export default function Home() {
     };
 
     initUser();
+
     // Initialize snowflakes
     const initialSnowflakes = Array.from({ length: SNOWFLAKE_COUNT }, (_, i) => ({ 
       id: i, 
