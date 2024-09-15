@@ -229,6 +229,7 @@ const handleBuyCard = async (cardId: number) => {
         ...collectedCards,
         [cardId]: (collectedCards[cardId] || 0) + 1
       };
+       await new Promise(resolve => setTimeout(resolve, 16000));
       setCollectedCards(updatedCollectedCards);
       localStorage.setItem('collectedCards', JSON.stringify(updatedCollectedCards));
 
