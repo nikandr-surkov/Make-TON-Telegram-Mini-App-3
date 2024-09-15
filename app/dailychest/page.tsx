@@ -106,6 +106,10 @@ const DailyChest: React.FC = () => {
   const [collectedCards, setCollectedCards] = useState<Record<number, number>>({});
   const [isGiftCardModalOpen, setIsGiftCardModalOpen] = useState<boolean>(false);
 
+  const [upgradesRemaining, setUpgradesRemaining] = useState<number>(15);
+  const [lastResetDate, setLastResetDate] = useState<string>('');
+
+
   // Assume you have implemented this hook
   const showAd = useAdsgram({ blockId: '3072', onReward: () => {}, onError: () => {} });
 
@@ -116,6 +120,23 @@ const DailyChest: React.FC = () => {
     if (storedCoins) setCoins(parseInt(storedCoins));
     if (storedOpenCount) setOpenCount(parseInt(storedOpenCount));
     if (storedCards) setCollectedCards(JSON.parse(storedCards));
+
+    const storedUpgradesRemaining = localStorage.getItem('upgradesRemaining');
+    const storedLastResetDate = localStorage.getItem('lastResetDate');
+    
+    if (storedUpgradesRemaining) setUpgradesRemaining(parseInt(storedUpgradesRemaining));
+    if (storedLastResetDate) setLastResetDate(storedLastResetDate);
+
+    // Check if a day has passed and reset values if needed
+    const currentDate = new Date().toDateString();
+    if (currentDate !== storedLastResetDate) {
+      setUpgradesRemaining(15);
+      setOpenCount(0);
+      setLastResetDate(currentDate);
+      localStorage.setItem('upgradesRemaining', '15');
+      localStorage.setItem('openCount', '0');
+      localStorage.setItem('lastResetDate', currentDate);
+    }
   }, []);
 
   const playAudio = (filename: string) => {
@@ -182,13 +203,13 @@ const handleBuyCard = async (cardId: number) => {
     const totalAdsRequired = card.price;
 
     const watchAd = async (): Promise<boolean> => {
-      try {
-        await showAd();
-        return true;
-      } catch (error) {
-        console.error('Ad failed to show:', error);
-        return false;
-      }
+      return new Promise((resolve) => {
+        // Simulating ad viewing with a timeout
+        setTimeout(() => {
+          console.log('Ad watched');
+          resolve(true);
+        }, 1000);
+      });
     };
 
     for (let i = 0; i < totalAdsRequired; i++) {
@@ -220,6 +241,15 @@ const handleBuyCard = async (cardId: number) => {
       console.log('Not all ads were watched. Card was not purchased.');
     }
   };
+
+  const onBuy = (cardId: number) => {
+    if (upgradesRemaining <= 0) {
+      alert("You've reached the maximum upgrades for today. Come back tomorrow!");
+      return;
+    }
+    handleBuyCard(cardId);
+  };
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-700 to-green-700 flex flex-col items-center justify-between p-4 sm:p-8 relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('/snowflakes.png')] opacity-30 animate-fall"></div>
@@ -361,7 +391,7 @@ const handleBuyCard = async (cardId: number) => {
             isOpen={isGiftCardModalOpen}
             onClose={() => setIsGiftCardModalOpen(false)}
             collectedCards={collectedCards}
-            onBuy={handleBuyCard}
+            onBuy={onBuy}
           />
         )}
       </AnimatePresence>
