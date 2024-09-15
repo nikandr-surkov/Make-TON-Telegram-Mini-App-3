@@ -14,7 +14,7 @@ interface AdController {
 declare global {
   interface Window {
     Adsgram?: {
-      init: (params: { blockId: string; debug: boolean; debugBannerType: string }) => AdController;
+      init: (params: { blockId: string; }) => AdController;
     };
   }
 }
