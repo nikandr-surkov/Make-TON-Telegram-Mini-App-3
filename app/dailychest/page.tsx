@@ -196,52 +196,66 @@ const DailyChest: React.FC = () => {
   };
 
 const handleBuyCard = async (cardId: number) => {
-    const card = giftCards.find(c => c.id === cardId);
-    if (!card || upgradesRemaining <= 0) return;
+  const card = giftCards.find(c => c.id === cardId);
+  if (!card || upgradesRemaining <= 0) return;
 
-    let adsWatched = 0;
-    let adsFailed = 0;
+  let adsWatched = 0;
+  let adsFailed = 0;
 
-    const handleReward = () => {
-      adsWatched += 1;
-      console.log(`Ad watched: ${adsWatched} of ${card.price}`);
-    };
+  const handleReward = () => {
+    adsWatched += 1;
+    console.log(`Ad watched: ${adsWatched} of ${card.price}`);
+  };
 
-    const handleError = (result: ShowPromiseResult) => {
-      console.log('Ad error:', result);
-      adsFailed += 1;
-    };
+  const handleError = (result: ShowPromiseResult) => {
+    console.log('Ad error:', result);
+    adsFailed += 1;
+  };
 
-    for (let i = 0; i < card.price; i++) {
-      try {
-        await showAd();
-        handleReward();
-      } catch (error) {
-        handleError({ error: true, done: false, state: 'error', description: 'Ad failed' });
-        console.log('Failed to show ad, stopping process.');
+  const handleSkip = () => {
+    console.log('Ad skipped');
+    adsFailed += 1;
+  };
+
+  const showAd = useAdsgram({
+    blockId: 'your-block-id',
+    onReward: handleReward,
+    onError: handleError,
+    onSkip: handleSkip,
+  });
+
+  for (let i = 0; i < card.price; i++) {
+    try {
+      const result = await showAd();
+      if (result.error || result.state !== 'playing') {
+        console.log('Failed to show ad or ad was not played, stopping process.');
         return;
       }
+    } catch (error) {
+      handleError({ error: true, done: false, state: 'load', description: 'Ad failed' });
+      console.log('Failed to show ad, stopping process.');
+      return;
     }
+  }
 
-    if (adsWatched === card.price && adsFailed === 0) {
-      const updatedCollectedCards = {
-        ...collectedCards,
-        [cardId]: (collectedCards[cardId] || 0) + 1
-      };
-      setCollectedCards(updatedCollectedCards);
-      localStorage.setItem('collectedCards', JSON.stringify(updatedCollectedCards));
-
-      const newUpgradesRemaining = upgradesRemaining - 1;
-      setUpgradesRemaining(newUpgradesRemaining);
-      localStorage.setItem('upgradesRemaining', newUpgradesRemaining.toString());
-
-      playAudio('/goodresult.mp3');
-      console.log(`Card ${cardId} successfully purchased!`);
-    } else {
-      console.log('Not all ads were watched or some ads failed. Cards were not updated.');
-    }
-  };
-  
+  if (adsWatched === card.price && adsFailed === 0) {
+    const updatedCollectedCards = {
+      ...collectedCards,
+      [cardId]: (collectedCards[cardId] || 0) + 1
+    };
+    setCollectedCards(updatedCollectedCards);
+    localStorage.setItem('collectedCards', JSON.stringify(updatedCollectedCards));
+    
+    const newUpgradesRemaining = upgradesRemaining - 1;
+    setUpgradesRemaining(newUpgradesRemaining);
+    localStorage.setItem('upgradesRemaining', newUpgradesRemaining.toString());
+    
+    playAudio('/goodresult.mp3');
+    console.log(`Card ${cardId} successfully purchased!`);
+  } else {
+    console.log('Not all ads were watched or some ads failed. Cards were not updated.');
+  }
+};
   const onBuy = (cardId: number) => {
     if (upgradesRemaining <= 0) {
       alert("You've reached the maximum upgrades for today. Come back tomorrow!");
