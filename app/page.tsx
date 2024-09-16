@@ -188,9 +188,9 @@ export default function Home() {
 
 // Initialize the user
 const initializeUser = async (
-  telegram_id: number,
+  telegram_id: string,
   telegram_username: string,
-  referrer_id?: number
+  referrer_id?: string
 ) => {
   try {
     const response = await fetch('/api/user', {
