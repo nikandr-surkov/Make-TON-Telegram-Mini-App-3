@@ -134,9 +134,10 @@ export default function Home() {
     }
   }, []);
 
-  useEffect(() => {
+   useEffect(() => {
     const initWebApp = async () => {
       if (typeof window !== 'undefined') {
+        const WebApp = (await import('@twa-dev/sdk')).default;
         WebApp.ready();
         const user = WebApp.initDataUnsafe.user;
         const startParameter = WebApp.initDataUnsafe.start_param;
