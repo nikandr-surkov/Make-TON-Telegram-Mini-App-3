@@ -134,9 +134,6 @@ export default function Home() {
     }
   }, []);
 
- const [telegramId, setTelegramId] = useState('');
-  const [telegramUsername, setTelegramUsername] = useState('');
-
   useEffect(() => {
     const initWebApp = async () => {
       if (typeof window !== 'undefined') {
