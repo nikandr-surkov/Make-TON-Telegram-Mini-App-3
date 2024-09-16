@@ -134,17 +134,38 @@ export default function Home() {
     }
   }, []);
 
+ const [telegramId, setTelegramId] = useState('');
+  const [telegramUsername, setTelegramUsername] = useState('');
+
   useEffect(() => {
     const initWebApp = async () => {
       if (typeof window !== 'undefined') {
-        const WebApp = (await import('@twa-dev/sdk')).default;
         WebApp.ready();
-        setTelegramId(WebApp.initDataUnsafe.user?.id.toString() || '');
-        setTelegramUsername(WebApp.initDataUnsafe.user?.username || '');
+        const user = WebApp.initDataUnsafe.user;
+        const startParameter = WebApp.initDataUnsafe.start_param;
+
+        if (user) {
+          setTelegramId(user.id.toString());
+          setTelegramUsername(user.username || '');
+
+          // Initialize user in the database
+          const result = await initializeUser(
+            user.id.toString(),
+            user.username || '',
+            startParameter
+          );
+
+          if (result.success) {
+            console.log('User initialized in the database');
+            // You can update your app state here if needed
+          } else {
+            console.error('Failed to initialize user in the database:', result.error);
+          }
+        }
       }
     };
-    initWebApp();
 
+    initWebApp();
     // Initialize snowflakes
     const initialSnowflakes = Array.from({ length: SNOWFLAKE_COUNT }, (_, i) => ({ 
       id: i, 
@@ -166,6 +187,44 @@ export default function Home() {
 
     return () => clearInterval(animationInterval);
   }, []);
+
+// Initialize the user
+const initializeUser = async (
+  telegram_id: number,
+  telegram_username: string,
+  referrer_id?: number
+) => {
+  try {
+    const response = await fetch('/api/user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        telegram_id,
+        telegram_username,
+        referrer_id,
+        coin_balance: 300, // Set initial coin balance to 0 or any default value
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (data.success) {
+      console.log('User initialized successfully');
+      // You can add additional logic here, such as updating the UI or state
+    } else {
+      console.error('Error initializing user:', data.error);
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error initializing user:', error);
+    return { success: false, error: 'Failed to initialize user' };
+  }
+};
 
   // Update localStorage whenever coins change
   useEffect(() => {
