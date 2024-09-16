@@ -186,12 +186,20 @@ export default function Home() {
     return () => clearInterval(animationInterval);
   }, []);
 
-// Initialize the user
+// Initialize the user 
 const initializeUser = async (
   telegram_id: string,
   telegram_username: string,
-  referrer_id?: string
+  startParameter?: string
 ) => {
+  const storageKey = `telemasOpenedBefore_${telegram_id}`;
+  const hasOpenedBefore = localStorage.getItem(storageKey) === 'true';
+
+  if (hasOpenedBefore) {
+    console.log('User has opened the app before, skipping database query');
+    return { success: true, message: 'User already initialized' };
+  }
+
   try {
     const response = await fetch('/api/user', {
       method: 'POST',
@@ -199,8 +207,8 @@ const initializeUser = async (
       body: JSON.stringify({
         telegram_id,
         telegram_username,
-        referrer_id,
-        coin_balance: 300, // Set initial coin balance to 0 or any default value
+        referrer_id: startParameter,
+        coin_balance: 0,
       }),
     });
 
@@ -212,7 +220,7 @@ const initializeUser = async (
 
     if (data.success) {
       console.log('User initialized successfully');
-      // You can add additional logic here, such as updating the UI or state
+      localStorage.setItem(storageKey, 'true');
     } else {
       console.error('Error initializing user:', data.error);
     }
@@ -223,6 +231,7 @@ const initializeUser = async (
     return { success: false, error: 'Failed to initialize user' };
   }
 };
+
 
   // Update localStorage whenever coins change
   useEffect(() => {
