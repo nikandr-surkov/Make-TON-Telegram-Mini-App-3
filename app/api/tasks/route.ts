@@ -21,7 +21,7 @@ const tasks = [
     id: 8,
     title: "Follow us on Twitter",
     description: "Follow us on Twitter for quick updates and news!",
-    link: "https://twitter.com/telemas_ai_bot",
+    link: "https://twitter.com/@TelemasGold",
     reward: 1500,
     emoji: "🐦"
   },
