@@ -380,4 +380,92 @@ export default function Home() {
                   relative text-center p-2 rounded-lg 
                   ${entry.isClaimed ? 'bg-green-600 text-white' : 'bg-white text-red-900'}
                   transform transition-all 
-                  ${entry.isClaimed ?
+                  ${entry.isClaimed ? 'scale-90 opacity-70' : 'hover:scale-105'}
+                `}
+              >
+                <div className="text-xl font-bold">{entry.day}</div>
+                {entry.isClaimed && (
+                  <Check className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white" />
+                )}
+                <div className="text-xs text-green-700 font-semibold">
+                  +{entry.reward} 🪙
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Claim Button */}
+          <button 
+            onClick={() => {
+              const todayEntry = generateChristmasCalendar()[0];
+              handleDailyCheckIn(todayEntry);
+              setIsDailyCheckInOpen(false);
+            }}
+            disabled={!canClaimToday}
+            className={`
+              w-full py-3 rounded-xl text-2xl font-bold 
+              ${canClaimToday 
+                ? 'bg-yellow-400 text-red-900 hover:bg-yellow-500' 
+                : 'bg-gray-400 text-gray-600 cursor-not-allowed'}
+              transition-all transform hover:scale-105
+            `}
+          >
+            {canClaimToday ? 'Claim Your Gift!' : 'Already Claimed'}
+          </button>
+
+          {/* Close Button */}
+          <button 
+            onClick={() => setIsDailyCheckInOpen(false)}
+            className="absolute top-4 right-4 text-white hover:text-yellow-300"
+          >
+            <X size={24} />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="h-screen bg-gradient-to-b from-green-900 to-green-600 relative overflow-hidden">
+      <Analytics />
+      {/* Impressive Background */}
+      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/winter_landscape.jpg')" }} />
+      <div className="absolute inset-0 bg-green-900 bg-opacity-50" /> {/* Overlay to maintain green tint */}
+
+      {/* Decorative Elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        {backgroundEmojis}
+      </div>
+
+      {/* Coin Counter */}
+      <div className="absolute top-4 left-4 bg-red-900 rounded-full px-4 py-2 text-2xl font-bold text-white shadow-lg">
+        <span className="text-yellow-400">🪙</span> {coins}
+      </div>
+
+      {/* Snowflakes Tapped Counter */}
+      <div className="absolute top-4 right-4 bg-blue-400 rounded-full px-4 py-2 text-2xl font-bold text-white shadow-lg">
+        ❄️ {snowflakesTapped}
+      </div>
+
+      {/* Snowflakes */}
+      {snowflakes.map((sf) => (
+        <SnowflakeElement key={sf.id} id={sf.id} x={sf.x} y={sf.y} size={sf.size} onClick={handleSnowflakeTap} />
+      ))}
+
+      {/* Burst Effects */}
+      {burstEffects.map(burst => (
+        <BurstEffect key={burst.id} x={burst.x} y={burst.y} />
+      ))}
+
+      {/* Coin Box */}
+      {showCoinBox && (
+        <CoinBox amount={coinAmount} onComplete={handleCoinBoxComplete} />
+      )}
+
+      {/* Daily Check-in Modal */}
+      {isDailyCheckInOpen && <DailyCheckInModal />}
+    </div>
+  );
+}
+
+export default Home;
