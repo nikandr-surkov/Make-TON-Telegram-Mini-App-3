@@ -30,7 +30,7 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
     const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
 
     // Set access permission based on mobile detection
-    setIsAllowed(true);
+    setIsAllowed(isMobile);
     
     // Once the check is done, stop loading
     setIsLoading(false);
