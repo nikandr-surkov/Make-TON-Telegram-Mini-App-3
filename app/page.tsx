@@ -1,5 +1,6 @@
 'use client';
 
+// placeholder comment
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Gift, Check, X } from 'lucide-react';
 import { Analytics } from "@vercel/analytics/react";
